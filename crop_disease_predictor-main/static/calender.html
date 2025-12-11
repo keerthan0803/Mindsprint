@@ -1,0 +1,609 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive Crop Calendar — My Smart Farm</title>
+  <meta name="description" content="Crop calendar showing sowing, growing and harvesting months for major Indian crops." />
+
+  <style>
+    /* ---------------- Theme & Background (kept from your template) ---------------- */
+    :root{
+      --bg: #f3fbf6;
+      --card: #ffffff;
+      --muted:#556b55;
+      --accent:#2e8b57;
+      --accent2: #b6e2c6;
+      --glass: rgba(255,255,255,0.85);
+      --radius:18px;
+      --shadow: 0 8px 32px rgba(30,50,30,0.10);
+      --shadow-hover: 0 16px 40px rgba(46,139,87,0.18);
+      --g-sow: linear-gradient(180deg, #e6fff0 0%, #d0f7dd 100%);
+      --g-grow: linear-gradient(180deg, #f7ffe8 0%, #eaf7d0 100%);
+      --g-harv: linear-gradient(180deg, #fff1e6 0%, #ffdcb8 100%);
+      --sow-color: #9be6b6;
+      --grow-color: #cfeaa0;
+      --harv-color: #ffca95;
+      --small-radius:10px;
+      color-scheme: light;
+    }
+
+    [data-theme="dark"]{
+      --glass: rgba(20,20,20,0.72);
+      --card: #0f1720;
+      --muted:#b6e2c6;
+      color-scheme: dark;
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: linear-gradient(90deg, #e0ffe6 0%, #f3fbf6 100%), radial-gradient(1200px 600px at 10% 10%, rgba(46,139,87,0.06), transparent);
+      background-attachment: fixed;
+      color:#113322;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      min-height:100vh;
+      transition: background .35s ease, color .35s ease;
+    }
+
+    .container{ max-width:1200px; margin:0 auto; padding:0 12px; }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:16px 28px;
+      background:var(--glass);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      margin-bottom: 18px;
+      border: 1.5px solid rgba(46,139,87,0.06);
+      flex-wrap:wrap;
+    }
+
+    .brand{ display:flex; align-items:center; gap:12px; min-width:0; }
+    .logo{ width:56px; height:56px; border-radius:12px; display:grid; place-items:center; background:linear-gradient(135deg,var(--accent), #2b6b4a); color:white; box-shadow:0 8px 24px rgba(46,139,87,0.22); border:2.5px solid #b6e2c6; overflow:hidden; }
+    .logo img{ width:48px; height:48px; display:block; object-fit:contain; border-radius:10px; }
+
+    .title{ font-size:20px; font-weight:800; }
+    .subtitle{ font-size:12px; color:var(--muted); margin-top:2px; }
+
+    .header-actions{ display:flex; align-items:center; gap:12px; }
+    .theme-toggle{ background:transparent; border-radius:14px; padding:6px; }
+    .theme-toggle button{ border:0; background:transparent; cursor:pointer; font-size:18px; }
+
+    /* ---------------- Page Header (Heading + Legend) ---------------- */
+    .page-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    .heading {
+      flex:1 1 380px;
+    }
+    .heading h1{
+      margin:0 0 6px 0;
+      font-size:28px;
+      color:var(--accent);
+      letter-spacing:0.01em;
+    }
+    .heading p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .legend{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:10px 16px;
+      background:var(--glass);
+      border-radius:14px;
+      box-shadow:0 6px 20px rgba(20,40,20,0.06);
+      min-width:260px;
+      justify-content:center;
+    }
+
+    .legend .item{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:700;
+      color:#113322;
+      font-size:14px;
+    }
+    .bullet{
+      width:36px;
+      height:36px;
+      display:grid;
+      place-items:center;
+      border-radius:10px;
+      font-size:18px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+    }
+    .bullet.sow{ background: var(--g-sow); border:1px solid rgba(0,0,0,0.04); }
+    .bullet.grow{ background: var(--g-grow); border:1px solid rgba(0,0,0,0.04); }
+    .bullet.harv{ background: var(--g-harv); border:1px solid rgba(0,0,0,0.04); }
+
+    /* ---------------- Calendar table container ---------------- */
+    .calendar-wrap{
+      background:var(--glass);
+      padding:18px;
+      border-radius:16px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    /* Use a horizontally scrollable area for months on small screens */
+    .calendar-scroll{
+      overflow:visible;
+      -webkit-overflow-scrolling: auto;
+      padding-bottom:8px;
+    }
+
+    table.crop-calendar{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:8px 12px;
+      min-width:unset;
+      table-layout:fixed;
+    }
+
+    /* header row: months */
+    .crop-calendar thead th{
+      background: rgba(34,60,43,0.06);
+      color:#113322;
+      padding:12px;
+      font-weight:800;
+      font-size:13px;
+      position:sticky;
+      top:0;
+      z-index:2;
+      border-radius:8px;
+    }
+
+    .crop-calendar tbody td{
+      background: transparent;
+      padding:6px;
+      vertical-align:middle;
+    }
+
+    .crop-row{
+      display:table-row;
+    }
+
+    .crop-name-cell{
+      width:180px;
+      text-align:left;
+      padding-left:14px;
+      background: linear-gradient(180deg,#ffffff,#f7fff8);
+      border-radius:10px;
+      font-weight:800;
+      color:#0b3a1f;
+      box-shadow: 0 6px 14px rgba(20,40,24,0.03);
+    }
+
+    /* small month cell wrapper */
+    .month-cell{
+      height:56px;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      transition: transform .18s ease, box-shadow .18s ease, opacity .25s;
+      cursor:default;
+      backface-visibility:hidden;
+    }
+
+    /* stage badges */
+    .stage{
+      width:44px;
+      height:44px;
+      border-radius:8px;
+      display:grid;
+      place-items:center;
+      font-size:16px;
+      font-weight:700;
+      box-shadow:0 8px 18px rgba(10,30,18,0.08);
+      transition: transform .14s ease, box-shadow .14s ease;
+      opacity:0;
+      transform: translateY(8px) scale(.98);
+      animation: appear .45s forwards;
+    }
+
+    @keyframes appear {
+      to { opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    /* stage colors */
+    .stage.sow{ background: var(--g-sow); border: 1px solid rgba(46,139,87,0.06); color: #0b5a2f; }
+    .stage.grow{ background: var(--g-grow); border: 1px solid rgba(46,139,87,0.06); color:#13481f; }
+    .stage.harv{ background: var(--g-harv); border: 1px solid rgba(200,80,40,0.08); color:#6a4018; }
+
+    /* hover effects */
+    .stage:hover{ transform: translateY(-6px) scale(1.05); box-shadow: var(--shadow-hover); z-index:3; }
+
+    /* a subtle pulse for sow icons (optional) */
+    .stage.sow .emoji { animation: sowPulse 2.2s infinite; display:inline-block; }
+    @keyframes sowPulse { 0% { transform: scale(1); } 50% { transform: scale(1.07); } 100% { transform: scale(1); } }
+
+    /* Tooltip */
+    .tooltip{
+      position:absolute;
+      bottom:calc(100% + 8px);
+      left:50%;
+      transform:translateX(-50%);
+      background: rgba(10,10,10,0.9);
+      color:white;
+      padding:6px 10px;
+      font-size:12px;
+      border-radius:8px;
+      white-space:nowrap;
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .12s ease, transform .12s ease;
+      transform-origin: bottom center;
+      transform: translateX(-50%) translateY(6px) scale(.98);
+    }
+    .month-cell:hover .tooltip{ opacity:1; transform:translateX(-50%) translateY(0) scale(1); pointer-events:auto; }
+
+    /* small label under stage icon for accessibility on small screens */
+    .stage-label{ font-size:10px; margin-top:4px; color: #284833; font-weight:700; display:block; text-align:center; }
+
+    /* tiny helper for empty cells */
+    .empty-cell{
+      height:44px;
+      border-radius:8px;
+      background:transparent;
+    }
+
+    /* Responsive tweaks */
+    @media (max-width:1000px){
+      .crop-name-cell{ width:150px; font-size:14px; padding-left:12px; }
+      .month-cell{ height:56px; }
+      table.crop-calendar{ min-width:unset; }
+    }
+
+    @media (max-width:680px){
+      .container{ padding:12px; }
+      .heading h1{ font-size:20px; }
+      .legend{ min-width:unset; }
+      table.crop-calendar{ min-width:unset; }
+      .crop-name-cell{ width:140px; font-size:13px; }
+      .month-cell{ height:52px; }
+    }
+
+    /* small desktop animation delay stagger */
+    .stage[data-delay="1"]{ animation-delay: .04s; }
+    .stage[data-delay="2"]{ animation-delay: .08s; }
+    .stage[data-delay="3"]{ animation-delay: .12s; }
+    .stage[data-delay="4"]{ animation-delay: .16s; }
+    .stage[data-delay="5"]{ animation-delay: .20s; }
+
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+
+    <!-- Header (kept) -->
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden>
+          <!-- placeholder logo image - replace with your own -->
+          <img src="logo.png" alt="My Smart Farm Logo" />
+        </div>
+        <div>
+          <div class="title">My Smart Farm</div>
+          <div class="subtitle">smart farming — soil to harvest</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="theme-toggle">
+          <button id="themeBtn" title="Toggle theme">🌙</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page header: Heading + Legend -->
+    <div class="page-header">
+      <div class="heading">
+        <h1>Interactive Crop Calendar</h1>
+        <p>Which crop to plant, grow and harvest — monthwise guidance for farmers (India).</p>
+      </div>
+
+      <div class="legend" aria-hidden="true">
+        <div class="item"><div class="bullet sow">🌱</div> <div>Sowing</div></div>
+        <div class="item"><div class="bullet grow">🌿</div> <div>Growing</div></div>
+        <div class="item"><div class="bullet harv">🌾</div> <div>Harvesting</div></div>
+      </div>
+    </div>
+
+    <!-- Calendar area -->
+    <section class="calendar-wrap" aria-label="Crop calendar">
+      <div class="calendar-scroll">
+        <table class="crop-calendar" role="table" aria-describedby="calendar-desc">
+          <caption id="calendar-desc" style="display:none">Table showing sowing, growing and harvesting months for major crops</caption>
+          <thead>
+            <tr>
+              <th scope="col">Crop</th>
+              <th scope="col">Jan</th>
+              <th scope="col">Feb</th>
+              <th scope="col">Mar</th>
+              <th scope="col">Apr</th>
+              <th scope="col">May</th>
+              <th scope="col">Jun</th>
+              <th scope="col">Jul</th>
+              <th scope="col">Aug</th>
+              <th scope="col">Sep</th>
+              <th scope="col">Oct</th>
+              <th scope="col">Nov</th>
+              <th scope="col">Dec</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- Helper to keep data-delay progressive for nicer animation -->
+            <!-- 1) Wheat: Sowing Oct-Nov, Growing Dec-Feb, Harvest Mar-Apr -->
+            <tr class="crop-row" aria-label="Wheat row">
+              <td class="crop-name-cell">Wheat</td>
+              <td><div class="month-cell"><div class="empty-cell" aria-hidden></div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="1" aria-hidden><span class="emoji">🌿</span></div><span class="stage-label" style="display:none">Growing</span><div class="tooltip">Growing — Wheat (Feb)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="2" aria-hidden><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Wheat (Mar)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="3" aria-hidden><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Wheat (Apr)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="4" aria-hidden><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Wheat (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="5" aria-hidden><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Wheat (Nov)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="1" aria-hidden><span class="emoji">🌿</span></div><div class="tooltip">Growing — Wheat (Dec)</div></div></td>
+            </tr>
+
+            <!-- 2) Rice: Kharif rice — Sowing Jun-Jul, Growing Jul-Oct, Harvest Oct-Nov -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Rice (Kharif)</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="1"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Rice (Jun)</div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="2"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Rice (Jul)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="3"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Rice (Aug)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="4"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Rice (Sep)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="5"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Rice (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="1"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Rice (Nov)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+            </tr>
+
+            <!-- 3) Maize: Sowing Jun-Jul, Growing Jul-Sep, Harvest Sep-Oct -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Maize</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="1"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Maize (Jun)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="2"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Maize (Jul)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="3"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Maize (Aug)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="4"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Maize (Sep)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="5"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Maize (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+            </tr>
+
+            <!-- 4) Barley: Rabi — Sowing Oct-Nov, Growing Dec-Feb, Harvest Mar-Apr -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Barley</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="1"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Barley (Feb)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="2"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Barley (Mar)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="3"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Barley (Apr)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="4"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Barley (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="5"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Barley (Nov)</div></div></td>
+            </tr>
+
+            <!-- 5) Sugarcane: Planting Feb-Mar, Growing Apr-Nov, Harvest Dec-Mar (long season) -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Sugarcane</td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="1"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Sugarcane (Jan)</div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="2"><span class="emoji">🌱</span></div><div class="tooltip">Planting — Sugarcane (Feb)</div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="3"><span class="emoji">🌱</span></div><div class="tooltip">Planting — Sugarcane (Mar)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="4"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sugarcane (Apr)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="5"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sugarcane (May)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="1"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sugarcane (Jun)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="2"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sugarcane (Jul)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="3"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sugarcane (Aug)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="4"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sugarcane (Sep)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="5"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sugarcane (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="1"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Sugarcane (Dec)</div></div></td>
+            </tr>
+
+            <!-- 6) Cotton: Sowing Jun-Jul, Growing Jul-Oct, Harvest Oct-Dec -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Cotton</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="1"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Cotton (Jun)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="2"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Cotton (Jul)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="3"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Cotton (Aug)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="4"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Cotton (Sep)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="5"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Cotton (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="1"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Cotton (Nov)</div></div></td>
+            </tr>
+
+            <!-- 7) Groundnut: Sowing Jun-Jul, Growing Jul-Sep, Harvest Sep-Nov -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Groundnut</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="1"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Groundnut (Jun)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="2"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Groundnut (Jul)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="3"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Groundnut (Aug)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="4"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Groundnut (Sep)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="5"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Groundnut (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+            </tr>
+
+            <!-- 8) Soybean: Sowing Jun-Jul, Growing Jul-Sep, Harvest Sep-Oct -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Soybean</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="1"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Soybean (Jun)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="2"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Soybean (Jul)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="3"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Soybean (Aug)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="4"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Soybean (Sep)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="5"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Soybean (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+            </tr>
+
+            <!-- 9) Pulses (general): Many pulses are Rabi — Sowing Oct-Nov, Growing Dec-Feb, Harvest Mar-Apr -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Pulses (general)</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="1"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Pulses (Feb)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="2"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Pulses (Mar)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="3"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Pulses (Apr)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="4"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Pulses (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="5"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Pulses (Nov)</div></div></td>
+            </tr>
+
+            <!-- 10) Mustard: Rabi — Sowing Oct-Nov, Growing Dec-Feb, Harvest Mar-Apr -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Mustard</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="1"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Mustard (Feb)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="2"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Mustard (Mar)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="3"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Mustard (Apr)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="4"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Mustard (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="5"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Mustard (Nov)</div></div></td>
+            </tr>
+
+            <!-- 11) Sunflower: Often sown Oct-Nov for Rabi; Growing Nov-Feb; Harvest Feb-Mar -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Sunflower</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="1"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sunflower (Feb)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="2"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Sunflower (Mar)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="3"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Sunflower (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="4"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sunflower (Nov)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="5"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Sunflower (Dec)</div></div></td>
+            </tr>
+
+            <!-- 12) Jute: Sowing Apr-May, Growing Jun-Aug, Harvest Sep-Oct -->
+            <tr class="crop-row">
+              <td class="crop-name-cell">Jute</td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="1"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Jute (Apr)</div></div></td>
+              <td><div class="month-cell"><div class="stage sow" data-delay="2"><span class="emoji">🌱</span></div><div class="tooltip">Sowing — Jute (May)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="3"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Jute (Jun)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="4"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Jute (Jul)</div></div></td>
+              <td><div class="month-cell"><div class="stage grow" data-delay="5"><span class="emoji">🌿</span></div><div class="tooltip">Growing — Jute (Aug)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="1"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Jute (Sep)</div></div></td>
+              <td><div class="month-cell"><div class="stage harv" data-delay="2"><span class="emoji">🌾</span></div><div class="tooltip">Harvest — Jute (Oct)</div></div></td>
+              <td><div class="month-cell"><div class="empty-cell"></div></div></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    /* Theme toggle (keeps your original style) */
+    const themeBtn = document.getElementById('themeBtn');
+    const body = document.body;
+    const themes = [
+      {name: 'light', icon: '🌙', label: 'Switch to dark theme'},
+      {name: 'dark', icon: '🌲', label: 'Switch to forest theme'},
+      {name: 'forest', icon: '☀', label: 'Switch to light theme'}
+    ];
+    let stored = localStorage.getItem('msf-theme') || 'light';
+    let themeIdx = themes.findIndex(t => t.name === stored);
+    if(themeIdx === -1) themeIdx = 0;
+    function setTheme(idx) {
+      const t = themes[idx];
+      body.setAttribute('data-theme', t.name);
+      themeBtn.textContent = t.icon;
+      themeBtn.title = t.label;
+      localStorage.setItem('msf-theme', t.name);
+    }
+    setTheme(themeIdx);
+    themeBtn.addEventListener('click', ()=>{ themeIdx = (themeIdx + 1) % themes.length; setTheme(themeIdx); });
+
+    /* Accessibility: show tooltip text for keyboard focus */
+    document.querySelectorAll('.month-cell').forEach(cell=>{
+      cell.tabIndex = 0;
+      cell.addEventListener('focus', ()=> {
+        const tip = cell.querySelector('.tooltip');
+        if(tip) tip.style.opacity = 1;
+      });
+      cell.addEventListener('blur', ()=> {
+        const tip = cell.querySelector('.tooltip');
+        if(tip) tip.style.opacity = 0;
+      });
+    });
+
+    /* small improvement: set aria-labels describing stage */
+    document.querySelectorAll('.stage').forEach(st => {
+      const cls = st.classList.contains('sow') ? 'Sowing' : (st.classList.contains('grow') ? 'Growing' : 'Harvesting');
+      st.setAttribute('aria-hidden','true');
+      const parent = st.closest('.month-cell');
+      if(parent){
+        const tip = parent.querySelector('.tooltip');
+        if(tip){
+          parent.setAttribute('aria-label', tip.textContent);
+        }
+      }
+    });
+  </script>
+
+</body>
+</html>

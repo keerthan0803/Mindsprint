@@ -98,10 +98,15 @@
         </div>
       </div>
       <div style="display:flex;gap:10px;align-items:center">
-        <div style="font-size:13px;color:var(--muted)">Theme</div>
+        <div style="font-size:13px;color:var(--muted)" data-i18n="theme">Theme</div>
         <div class="theme-toggle" style="background:var(--glass);padding:6px;border-radius:12px;border:1px solid rgba(182,226,198,0.5)">
           <button id="themeBtn" style="border:0;background:transparent;cursor:pointer;font-size:16px">🌙</button>
         </div>
+        <select id="langSelect" style="padding:8px;border-radius:12px;border:1px solid rgba(182,226,198,0.5);background:var(--glass);font-size:13px;cursor:pointer">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="te">తెలుగు</option>
+        </select>
       </div>
     </header>
 
@@ -159,6 +164,101 @@
   </div>
 
   <script>
+    // Language translations
+    const translations = {
+      en: {
+        title: 'My Smart Farm',
+        subtitle: 'Enter soil & weather values — get the best crop suggestion',
+        theme: 'Theme',
+        inputParams: 'Input Parameters',
+        paramDesc: 'Provide N, P, K (kg/ha or ppm relative), temperature (°C), humidity (%), pH and rainfall (mm).',
+        nitrogen: 'Nitrogen (N)',
+        phosphorous: 'Phosphorous (P)',
+        potassium: 'Potassium (K)',
+        temperature: 'Temperature (°C)',
+        humidity: 'Humidity (%)',
+        ph: 'pH (0-14)',
+        rainfall: 'Rainfall (mm/yr)',
+        predictBtn: 'Predict Best Crop',
+        resetBtn: 'Reset',
+        predicting: 'Predicting...',
+        analyzing: 'Analyzing soil parameters...',
+        bestCrop: 'Best crop:',
+        aiRecommendation: 'AI-powered recommendation based on your soil parameters'
+      },
+      hi: {
+        title: 'माइ स्मार्ट फार्म',
+        subtitle: 'मिट्टी और मौसम के मान दर्ज करें — सर्वोत्तम फसल सुझाव प्राप्त करें',
+        theme: 'थीम',
+        inputParams: 'इनपुट पैरामीटर',
+        paramDesc: 'N, P, K (kg/ha या ppm सापेक्ष), तापमान (°C), आर्द्रता (%), pH और वर्षा (mm) प्रदान करें।',
+        nitrogen: 'नाइट्रोजन (N)',
+        phosphorous: 'फास्फोरस (P)',
+        potassium: 'पोटेशियम (K)',
+        temperature: 'तापमान (°C)',
+        humidity: 'आर्द्रता (%)',
+        ph: 'pH (0-14)',
+        rainfall: 'वर्षा (mm/वर्ष)',
+        predictBtn: 'सर्वोत्तम फसल भविष्यवाणी करें',
+        resetBtn: 'रीसेट करें',
+        predicting: 'भविष्यवाणी कर रहे हैं...',
+        analyzing: 'मिट्टी के पैरामीटर का विश्लेषण कर रहे हैं...',
+        bestCrop: 'सर्वोत्तम फसल:',
+        aiRecommendation: 'आपकी मिट्टी के मापदंडों के आधार पर एआई-संचालित सिफारिश'
+      },
+      te: {
+        title: 'మై స్మార్ట్ ఫార్మ్',
+        subtitle: 'మట్టి మరియు వాతావరణ విలువలను నమోదు చేయండి — ఉత్తమ పంట సూచన పొందండి',
+        theme: 'థీమ్',
+        inputParams: 'ఇన్‌పుట్ పరామితులు',
+        paramDesc: 'N, P, K (kg/ha లేదా ppm సాపేక్ష), ఉష్ణోగ్రత (°C), తేమ (%), pH మరియు వర్షపాతం (mm) అందించండి.',
+        nitrogen: 'నత్రజని (N)',
+        phosphorous: 'భాస్వరం (P)',
+        potassium: 'పొటాషియం (K)',
+        temperature: 'ఉష్ణోగ్రత (°C)',
+        humidity: 'తేమ (%)',
+        ph: 'pH (0-14)',
+        rainfall: 'వర్షపాతం (mm/సంవత్సరం)',
+        predictBtn: 'ఉత్తమ పంట అంచనా వేయండి',
+        resetBtn: 'రీసెట్ చేయండి',
+        predicting: 'అంచనా వేస్తోంది...',
+        analyzing: 'మట్టి పరామితులను విశ్లేషిస్తోంది...',
+        bestCrop: 'ఉత్తమ పంట:',
+        aiRecommendation: 'మీ మట్టి పరామితుల ఆధారంగా AI-శక్తితో కూడిన సిఫార్సు'
+      }
+    };
+
+    function applyLanguage(lang) {
+      const t = translations[lang];
+      document.querySelector('.title').textContent = t.title;
+      document.querySelector('.subtitle').textContent = t.subtitle;
+      document.querySelector('[data-i18n="theme"]').textContent = t.theme;
+      document.querySelector('h3').textContent = t.inputParams;
+      document.querySelector('p[style*="margin-top:0"]').textContent = t.paramDesc;
+      document.querySelectorAll('label')[0].textContent = t.nitrogen;
+      document.querySelectorAll('label')[1].textContent = t.phosphorous;
+      document.querySelectorAll('label')[2].textContent = t.potassium;
+      document.querySelectorAll('label')[3].textContent = t.temperature;
+      document.querySelectorAll('label')[4].textContent = t.humidity;
+      document.querySelectorAll('label')[5].textContent = t.ph;
+      document.querySelectorAll('label')[6].textContent = t.rainfall;
+      document.getElementById('predictBtn').textContent = t.predictBtn;
+      document.getElementById('resetBtn').textContent = t.resetBtn;
+    }
+
+    // Load saved language preference
+    const langSelect = document.getElementById('langSelect');
+    const savedLang = localStorage.getItem('msf-lang') || 'en';
+    langSelect.value = savedLang;
+    applyLanguage(savedLang);
+
+    // Language change handler
+    langSelect.addEventListener('change', () => {
+      const selectedLang = langSelect.value;
+      localStorage.setItem('msf-lang', selectedLang);
+      applyLanguage(selectedLang);
+    });
+
     // Theme toggle
     const themeBtn = document.getElementById('themeBtn');
     const body = document.body;
@@ -288,10 +388,12 @@
       const inputs = readInputs();
       
       // Show loading state
+      const currentLang = langSelect.value;
+      const t = translations[currentLang];
       predictBtn.disabled = true;
-      predictBtn.textContent = 'Predicting...';
+      predictBtn.textContent = t.predicting;
       output.style.display = 'block';
-      output.innerHTML = '<div style="text-align:center;color:var(--muted);">Analyzing soil parameters...</div>';
+      output.innerHTML = `<div style="text-align:center;color:var(--muted);">${t.analyzing}</div>`;
       
       try {
         // Call API
@@ -326,19 +428,23 @@
         showResult(ranked, inputs);
       } finally {
         predictBtn.disabled = false;
-        predictBtn.textContent = 'Predict Best Crop';
+        const currentLang = langSelect.value;
+        const t = translations[currentLang];
+        predictBtn.textContent = t.predictBtn;
       }
     });
 
     function displayAPIResults(data, inputs) {
       const topCrop = data.recommended_crop;
+      const currentLang = langSelect.value;
+      const t = translations[currentLang];
       
       // Display result
       output.style.display = 'block';
       output.innerHTML = `
         <div>
-          <div style="font-size:18px;font-weight:800">Best crop: ${topCrop}</div>
-          <div style="color:var(--muted);font-size:13px;margin-top:6px">AI-powered recommendation based on your soil parameters</div>
+          <div style="font-size:18px;font-weight:800">${t.bestCrop} ${topCrop}</div>
+          <div style="color:var(--muted);font-size:13px;margin-top:6px">${t.aiRecommendation}</div>
         </div>
       `;
     }

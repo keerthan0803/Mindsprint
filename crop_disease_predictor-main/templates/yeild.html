@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crop Yield Prediction</title>
+  <style>
+    :root{
+      --bg: #f3fbf6;
+      --card: #ffffff;
+      --muted:#556b55;
+      --accent:#2e8b57;
+      --accent2: #b6e2c6;
+      --glass: rgba(255,255,255,0.7);
+      --radius:18px;
+      --shadow: 0 8px 32px rgba(30,50,30,0.10);
+      --shadow-hover: 0 16px 40px rgba(46,139,87,0.18);
+      --gradient: linear-gradient(120deg, #e0ffe6 0%, #b6e2c6 100%);
+      --gradient2: linear-gradient(90deg, #e0ffe6 0%, #f3fbf6 100%);
+      color-scheme: light;
+    }
+
+    /* Dark + Forest Modes */
+    [data-theme="dark"]{
+      --bg: #000000;
+      --card: #111111;
+      --muted: #b6e2c6;
+      --accent: #8fe0a2;
+      --accent2: #222;
+      --glass: rgba(20,20,20,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.32);
+      --shadow-hover: 0 16px 40px rgba(143,224,162,0.22);
+    }
+    [data-theme="forest"]{
+      --bg: #1a2e22;
+      --card: #223c2b;
+      --muted: #d0f5e2;
+      --accent: #7ed957;
+      --accent2: #2e8b57;
+      --glass: rgba(34,60,43,0.7);
+      --shadow: 0 8px 32px rgba(46,139,87,0.22);
+      --shadow-hover: 0 16px 40px rgba(126,217,87,0.22);
+    }
+
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family: 'Inter', system-ui;
+      background: var(--gradient2);
+      padding: 28px;
+      min-height:100vh;
+    }
+
+    .container{
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 28px;
+      background:var(--glass);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      margin-bottom: 25px;
+    }
+
+    .brand{display:flex;align-items:center;gap:12px;}
+    .logo img{
+      width:56px;height:56px;border-radius:16px;
+      object-fit:contain;
+    }
+    .title{font-size:22px;font-weight:800;}
+    .subtitle{font-size:13px;color:var(--muted);}
+
+    /* FORM CARD */
+    .card{
+      background: var(--card);
+      padding: 32px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(4px);
+    }
+
+    .heading{
+      text-align:center;
+      font-size:28px;
+      font-weight:800;
+      margin-bottom: 22px;
+      color: var(--accent);
+    }
+
+    .form-group{
+      display:flex;
+      flex-direction:column;
+      margin-bottom:16px;
+    }
+    label{
+      font-weight:600;
+      margin-bottom:6px;
+    }
+    input{
+      padding:12px 14px;
+      border-radius:12px;
+      border:1.5px solid var(--accent2);
+      background:var(--glass);
+      outline:none;
+      font-size:15px;
+    }
+    input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(46,139,87,0.25);
+    }
+
+    button{
+      margin-top:18px;
+      width:100%;
+      padding:14px;
+      background:var(--accent);
+      border:none;
+      color:white;
+      font-size:17px;
+      border-radius:14px;
+      cursor:pointer;
+      transition:0.25s;
+    }
+    button:hover{
+      background:#226f45;
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* OUTPUT */
+    .output-box{
+      margin-top:22px;
+      padding:20px;
+      background:var(--glass);
+      border-radius:16px;
+      border-left:5px solid var(--accent);
+      font-size:18px;
+      font-weight:600;
+      display:none;
+    }
+
+    @media(max-width:600px){
+      .card{padding:22px;}
+      .heading{font-size:24px;}
+    }
+  </style>
+</head>
+<body data-theme="light">
+
+  <div class="container">
+
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="logo"><img src="/static/logo.png" alt="Logo"></div>
+        <div>
+          <div class="title">My Smart Farm</div>
+          <div class="subtitle">smart farming — soil to harvest</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <select id="langSelect" style="padding:8px;border-radius:12px;border:1px solid rgba(182,226,198,0.5);background:var(--glass);font-size:13px;cursor:pointer">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="te">తెలుగు</option>
+        </select>
+      </div>
+    </header>
+
+    <!-- FORM CARD -->
+    <div class="card">
+      <div class="heading">🌾 Crop Yield Prediction</div>
+
+      <div class="form-group">
+        <label>Rainfall (mm)</label>
+        <input id="rain" type="number" placeholder="Enter rainfall">
+      </div>
+
+      <div class="form-group">
+        <label>Soil Quality Index</label>
+        <input id="soil" type="number" placeholder="Enter soil index">
+      </div>
+
+      <div class="form-group">
+        <label>Farm Size (hectares)</label>
+        <input id="size" type="number" placeholder="Enter area">
+      </div>
+
+      <div class="form-group">
+        <label>Sunlight (hours)</label>
+        <input id="sun" type="number" placeholder="Enter sunlight hours">
+      </div>
+
+      <div class="form-group">
+        <label>Fertilizers (kg)</label>
+        <input id="fert" type="number" placeholder="Enter fertilizer amount">
+      </div>
+
+      <button onclick="predictYield()">Predict Crop Yield</button>
+
+      <div id="output" class="output-box"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // Language translations
+    const translations = {
+      en: {
+        title: 'My Smart Farm',
+        subtitle: 'smart farming — soil to harvest',
+        heading: '🌾 Crop Yield Prediction',
+        rainfall: 'Rainfall (mm)',
+        rainfallPlaceholder: 'Enter rainfall',
+        soilQuality: 'Soil Quality Index',
+        soilPlaceholder: 'Enter soil index',
+        farmSize: 'Farm Size (hectares)',
+        farmPlaceholder: 'Enter farm size',
+        sunlight: 'Sunlight Hours',
+        sunlightPlaceholder: 'Enter sunlight hours',
+        fertilizer: 'Fertilizer Used (kg)',
+        fertilizerPlaceholder: 'Enter fertilizer amount',
+        predictBtn: 'Predict Yield',
+        fillFields: 'Please fill all fields.',
+        predictedYield: 'Predicted Crop Yield:'
+      },
+      hi: {
+        title: 'माइ स्मार्ट फार्म',
+        subtitle: 'मिट्टी से फसल तक',
+        heading: '🌾 फसल उपज पूर्वानुमान',
+        rainfall: 'वर्षा (mm)',
+        rainfallPlaceholder: 'वर्षा दर्ज करें',
+        soilQuality: 'मिट्टी गुणवत्ता सूचकांक',
+        soilPlaceholder: 'मिट्टी सूचकांक दर्ज करें',
+        farmSize: 'खेत का आकार (हेक्टेयर)',
+        farmPlaceholder: 'खेत का आकार दर्ज करें',
+        sunlight: 'सूर्य प्रकाश घंटे',
+        sunlightPlaceholder: 'सूर्य प्रकाश घंटे दर्ज करें',
+        fertilizer: 'उपयोग किया गया उर्वरक (kg)',
+        fertilizerPlaceholder: 'उर्वरक की मात्रा दर्ज करें',
+        predictBtn: 'उपज का अनुमान लगाएं',
+        fillFields: 'कृपया सभी फ़ील्ड भरें।',
+        predictedYield: 'अनुमानित फसल उपज:'
+      },
+      te: {
+        title: 'మై స్మార్ట్ ఫార్మ్',
+        subtitle: 'మట్టితో పంట వరకు',
+        heading: '🌾 పంట దిగుబడి అంచనా',
+        rainfall: 'వర్షపాతం (mm)',
+        rainfallPlaceholder: 'వర్షపాతం నమోదు చేయండి',
+        soilQuality: 'మట్టి నాణ్యత సూచిక',
+        soilPlaceholder: 'మట్టి సూచిక నమోదు చేయండి',
+        farmSize: 'ఫార్మ్ పరిమాణం (హెక్టార్లు)',
+        farmPlaceholder: 'ఫార్మ్ పరిమాణం నమోదు చేయండి',
+        sunlight: 'సూర్యరశ్మి గంటలు',
+        sunlightPlaceholder: 'సూర్యరశ్మి గంటలు నమోదు చేయండి',
+        fertilizer: 'ఉపయోగించిన ఎరువులు (kg)',
+        fertilizerPlaceholder: 'ఎరువుల పరిమాణం నమోదు చేయండి',
+        predictBtn: 'దిగుబడి అంచనా వేయండి',
+        fillFields: 'దయచేసి అన్ని ఫీల్డ్‌లను నింపండి.',
+        predictedYield: 'అంచనా వేసిన పంట దిగుబడి:'
+      }
+    };
+
+    function applyLanguage(lang) {
+      const t = translations[lang];
+      document.querySelector('.title').textContent = t.title;
+      document.querySelector('.subtitle').textContent = t.subtitle;
+      document.querySelector('.heading').textContent = t.heading;
+      
+      const labels = document.querySelectorAll('label');
+      labels[0].textContent = t.rainfall;
+      labels[1].textContent = t.soilQuality;
+      labels[2].textContent = t.farmSize;
+      labels[3].textContent = t.sunlight;
+      labels[4].textContent = t.fertilizer;
+      
+      document.getElementById('rain').placeholder = t.rainfallPlaceholder;
+      document.getElementById('soil').placeholder = t.soilPlaceholder;
+      document.getElementById('size').placeholder = t.farmPlaceholder;
+      document.getElementById('sun').placeholder = t.sunlightPlaceholder;
+      document.getElementById('fert').placeholder = t.fertilizerPlaceholder;
+      
+      document.querySelector('button').textContent = t.predictBtn;
+    }
+
+    // Load saved language preference
+    const langSelect = document.getElementById('langSelect');
+    const savedLang = localStorage.getItem('msf-lang') || 'en';
+    langSelect.value = savedLang;
+    applyLanguage(savedLang);
+
+    // Language change handler
+    langSelect.addEventListener('change', () => {
+      const selectedLang = langSelect.value;
+      localStorage.setItem('msf-lang', selectedLang);
+      applyLanguage(selectedLang);
+    });
+
+    async function predictYield(){
+      let rain = Number(document.getElementById("rain").value);
+      let soil = Number(document.getElementById("soil").value);
+      let size = Number(document.getElementById("size").value);
+      let sun  = Number(document.getElementById("sun").value);
+      let fert = Number(document.getElementById("fert").value);
+
+      if(!rain || !soil || !size || !sun || !fert){
+        const currentLang = langSelect.value;
+        const t = translations[currentLang];
+        alert(t.fillFields);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/yield-predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            rainfall: rain,
+            soil_quality: soil,
+            farm_size: size,
+            sunlight: sun,
+            fertilizer: fert
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          const currentLang = langSelect.value;
+          const t = translations[currentLang];
+          document.getElementById("output").style.display = "block";
+          document.getElementById("output").innerHTML = t.predictedYield + " <b>" + result.predicted_yield + " " + result.unit + "</b>";
+        } else {
+          alert("Error: " + (result.error || "Prediction failed"));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert("Failed to get prediction. Please try again.");
+      }
+    }
+  </script>
+
+</body>
+</html>

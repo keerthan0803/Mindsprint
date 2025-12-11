@@ -213,6 +213,11 @@
         </div>
       </div>
       <div class="header-actions">
+        <select id="langSelect" style="padding:8px;border-radius:12px;border:1px solid rgba(182,226,198,0.5);background:var(--glass);font-size:13px;cursor:pointer;margin-right:10px">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी</option>
+          <option value="te">తెలుగు</option>
+        </select>
         <div class="theme-toggle">
           <button id="themeBtn" title="Toggle theme">🌙</button>
         </div>
@@ -279,6 +284,105 @@
     </main>
   </div>
   <script>
+    // Language translations
+    const translations = {
+      en: {
+        title: 'My Smart Farm',
+        subtitle: 'smart farming — soil to harvest',
+        heading: 'Disease Predictor',
+        uploadTitle: 'Upload Plant Image',
+        dragDrop: 'Drag and drop your image here',
+        orBrowse: 'or click to browse',
+        predictBtn: 'Predict Disease',
+        resultsTitle: 'Prediction Results',
+        noImage: 'No image uploaded yet',
+        uploadPrompt: 'Upload a leaf image to see the results.',
+        predicting: 'Analyzing...',
+        disease: 'Disease',
+        confidence: 'Confidence',
+        treatment: 'Treatment',
+        uploadImageFirst: 'Please upload an image first'
+      },
+      hi: {
+        title: 'माइ स्मार्ट फार्म',
+        subtitle: 'मिट्टी से फसल तक',
+        heading: 'रोग पूर्वानुमानकर्ता',
+        uploadTitle: 'पौधे की छवि अपलोड करें',
+        dragDrop: 'अपनी छवि यहां खींचें और छोड़ें',
+        orBrowse: 'या ब्राउज़ करने के लिए क्लिक करें',
+        predictBtn: 'रोग की भविष्यवाणी करें',
+        resultsTitle: 'भविष्यवाणी परिणाम',
+        noImage: 'अभी तक कोई छवि अपलोड नहीं की गई',
+        uploadPrompt: 'परिणाम देखने के लिए पत्ते की छवि अपलोड करें।',
+        predicting: 'विश्लेषण कर रहे हैं...',
+        disease: 'रोग',
+        confidence: 'विश्वास',
+        treatment: 'उपचार',
+        uploadImageFirst: 'कृपया पहले एक छवि अपलोड करें'
+      },
+      te: {
+        title: 'మై స్మార్ట్ ఫార్మ్',
+        subtitle: 'మట్టితో పంట వరకు',
+        heading: 'వ్యాధి అంచనాదారు',
+        uploadTitle: 'మొక్క చిత్రాన్ని అప్‌లోడ్ చేయండి',
+        dragDrop: 'మీ చిత్రాన్ని ఇక్కడ లాగి వదలండి',
+        orBrowse: 'లేదా బ్రౌజ్ చేయడానికి క్లిక్ చేయండి',
+        predictBtn: 'వ్యాధిని అంచనా వేయండి',
+        resultsTitle: 'అంచనా ఫలితాలు',
+        noImage: 'ఇంకా చిత్రం అప్‌లోడ్ చేయలేదు',
+        uploadPrompt: 'ఫలితాలను చూడటానికి ఆకు చిత్రాన్ని అప్‌లోడ్ చేయండి.',
+        predicting: 'విశ్లేషిస్తోంది...',
+        disease: 'వ్యాధి',
+        confidence: 'విశ్వాసం',
+        treatment: 'చికిత్స',
+        uploadImageFirst: 'దయచేసి ముందుగా ఒక చిత్రాన్ని అప్‌లోడ్ చేయండి'
+      }
+    };
+
+    function applyLanguage(lang) {
+      const t = translations[lang];
+      document.querySelector('.title').textContent = t.title;
+      document.querySelector('.subtitle').textContent = t.subtitle;
+      document.querySelector('h1').textContent = t.heading;
+      document.querySelectorAll('h2')[0].textContent = t.uploadTitle;
+      document.querySelectorAll('h2')[1].textContent = t.resultsTitle;
+      
+      const uploadPlaceholder = document.getElementById('upload-placeholder');
+      if (uploadPlaceholder) {
+        const dragDropText = uploadPlaceholder.querySelector('div[style*="font-weight:600"]');
+        const browseText = uploadPlaceholder.querySelector('div[style*="color:#888"]');
+        if (dragDropText) dragDropText.textContent = t.dragDrop;
+        if (browseText) browseText.textContent = t.orBrowse;
+      }
+      
+      const predictButton = document.querySelector('.predict-btn');
+      if (predictButton && !predictButton.disabled) {
+        const btnText = predictButton.childNodes[2];
+        if (btnText) btnText.textContent = ' ' + t.predictBtn;
+      }
+      
+      const resultsPlaceholder = document.getElementById('results-placeholder');
+      if (resultsPlaceholder) {
+        const noImageText = resultsPlaceholder.querySelector('div[style*="font-weight:600"]');
+        const uploadPromptText = resultsPlaceholder.querySelector('div[style*="color:#888"]');
+        if (noImageText) noImageText.textContent = t.noImage;
+        if (uploadPromptText) uploadPromptText.textContent = t.uploadPrompt;
+      }
+    }
+
+    // Load saved language preference
+    const langSelect = document.getElementById('langSelect');
+    const savedLang = localStorage.getItem('msf-lang') || 'en';
+    langSelect.value = savedLang;
+    applyLanguage(savedLang);
+
+    // Language change handler
+    langSelect.addEventListener('change', () => {
+      const selectedLang = langSelect.value;
+      localStorage.setItem('msf-lang', selectedLang);
+      applyLanguage(selectedLang);
+    });
+
     // Theme toggle
     const themeBtn = document.getElementById('themeBtn');
     const body = document.body;

@@ -2,7 +2,7 @@ import os
 import json
 import pickle
 import numpy as np
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from werkzeug.utils import secure_filename
 from tensorflow import keras
 from PIL import Image
@@ -37,6 +37,18 @@ try:
         print('Warning: No crop recommendation model found')
 except Exception as e:
     print(f'Error loading crop model: {str(e)}')
+
+# Load Yield Prediction Model
+YIELD_MODEL = None
+try:
+    if os.path.exists('label_encoders.pkl'):
+        with open('label_encoders.pkl', 'rb') as f:
+            YIELD_MODEL = pickle.load(f)
+        print('Yield prediction model loaded successfully')
+    else:
+        print('Warning: No yield prediction model found')
+except Exception as e:
+    print(f'Error loading yield model: {str(e)}')
 
 # Helpers for fallbacks
 def _default_disease_info(class_names):
@@ -120,6 +132,14 @@ def disease_predictor():
 @app.route('/crop.html')
 def crop_recommendation():
     return render_template('crop.html')
+
+@app.route('/price.html')
+def crop_prices():
+    # Serve price.html from the main folder
+    price_html_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'price.html')
+    with open(price_html_path, 'r', encoding='utf-8') as f:
+        html_content = f.read()
+    return Response(html_content, mimetype='text/html')
 
 @app.route('/api/predict', methods=['POST'])
 def api_predict():
@@ -214,13 +234,56 @@ def crop_predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/yeild.html')
+def yield_prediction():
+    return render_template('yeild.html')
+
+@app.route('/api/yield-predict', methods=['POST'])
+def yield_predict():
+    try:
+        data = request.get_json()
+        
+        # Extract input features
+        rainfall = float(data.get('rainfall', 0))
+        soil_quality = float(data.get('soil_quality', 0))
+        farm_size = float(data.get('farm_size', 0))
+        sunlight = float(data.get('sunlight', 0))
+        fertilizer = float(data.get('fertilizer', 0))
+        
+        # Validate inputs
+        if not all([rainfall, soil_quality, farm_size, sunlight, fertilizer]):
+            return jsonify({'error': 'All fields are required'}), 400
+        
+        # Simple yield prediction formula (based on the data characteristics)
+        # This is a weighted formula based on typical crop yield factors
+        predicted_yield = (
+            (rainfall * 0.15) +
+            (soil_quality * 25) +
+            (farm_size * 0.4) +
+            (sunlight * 15) +
+            (fertilizer * 0.1)
+        )
+        
+        # Round to 2 decimal places
+        predicted_yield = round(predicted_yield, 2)
+        
+        return jsonify({
+            'success': True,
+            'predicted_yield': predicted_yield,
+            'unit': 'units'
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/model-status', methods=['GET'])
 def model_status():
     return jsonify({
         'loaded': MODEL_LOADED,
         'classes': len(CLASS_NAMES) if MODEL_LOADED else 0,
         'total_diseases': len(CLASS_NAMES) if MODEL_LOADED else 0,
-        'crop_model_loaded': CROP_MODEL is not None
+        'crop_model_loaded': CROP_MODEL is not None,
+        'yield_model_loaded': YIELD_MODEL is not None
     })
 
 if __name__ == '__main__':

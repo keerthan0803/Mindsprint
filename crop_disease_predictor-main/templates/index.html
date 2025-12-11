@@ -448,7 +448,7 @@
   <div class="container">
     <header>
       <div class="brand">
-        <div class="logo" aria-hidden><img src="/static/logo.png" alt="My Smart Farm Logo" style="width:48px;height:48px;display:block;border-radius:12px;object-fit:contain;box-shadow:0 6px 18px rgba(46,139,87,0.22)" /></div>
+        <div class="logo" aria-hidden><img src="../static/logo.png" alt="My Smart Farm Logo" style="width:48px;height:48px;display:block;border-radius:12px;object-fit:contain;box-shadow:0 6px 18px rgba(46,139,87,0.22)" /></div>
         <div>
           <div class="title">My Smart Farm</div>
           <div class="subtitle">smart farming — soil to harvest</div>
@@ -479,32 +479,32 @@
           <div class="card pop">
             <div class="intro">
               <h1>Welcome to My Smart Farm</h1>
-              <p>One-stop platform for yield prediction, crop recommendation, fertilizer planning and leaf-disease detection using AI — designed for farmers, students and agritech developers.</p>
+              <p>One-stop platform for soil analysis, crop recommendation, fertilizer planning and leaf-disease detection using AI — designed for farmers, students and agritech developers.</p>
             </div>
             <div class="controls">
               <button class="btn btn-accent" id="calBtn">📅 Open Calendar</button>
-              <button class="btn btn-ghost" onclick="location.href='#services'">Explore Services</button>
+              <button class="btn btn-ghost" onclick="location.href='../../price.html'">View Crop Prices</button>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="services" style="margin-top:18px">
-        <h2 style="margin:6px 0 12px 4px">Our Services</h2>
+      <section id="crop-prices" style="margin-top:18px">
+        <h2 style="margin:6px 0 12px 4px">Crop Prices</h2>
         <div class="services">
-          <!-- Yield Prediction -->
+          <!-- Soil Analysis -->
           <article class="service tilt">
-            <div class="img" style="background-image:url('/static/soil-testing-jpeg.webp')" aria-hidden></div>
+            <div class="img" style="background-image:url('../static/soil-testing-jpeg.webp')" aria-hidden></div>
             <div class="body">
-              <h3>Yield Prediction</h3>
-              <p>Predict crop yield based on environmental factors and soil parameters. Get accurate yield estimates to plan your harvest and maximize productivity.</p>
-              <div class="actions"><button class="btn btn-accent" onclick="alert('Yield Prediction feature coming soon!')">Predict Yield</button></div>
+              <h3>Soil Analysis</h3>
+              <p>Provide N, P, K, pH and (optionally) temperature & moisture. Get a soil quality score, missing nutrients and a downloadable soil report.</p>
+              <div class="actions"><button class="btn btn-accent" onclick="alert('Open Soil Analysis page (placeholder)')">Open Soil Analysis</button></div>
             </div>
           </article>
 
           <!-- Crop Recommendation -->
           <article class="service tilt">
-            <div class="img" style="background-image:url('/static/crop.jpg')" aria-hidden></div>
+            <div class="img" style="background-image:url('../static/crop.jpg')" aria-hidden></div>
             <div class="body">
               <h3>Crop Recommendation</h3>
               <p>AI model suggests the top 4 crops best suited to your soil and location, along with expected risk and estimated profit.</p>
@@ -514,7 +514,7 @@
 
           <!-- Fertilizer Predictor -->
           <article class="service tilt">
-            <div class="img" style="background-image:url('/static/fertilizer.webp')" aria-hidden></div>
+            <div class="img" style="background-image:url('../static/fertilizer.webp')" aria-hidden></div>
             <div class="body">
               <h3>Fertilizer Predictor</h3>
               <p>Select a crop and get an AI-recommended fertilizer combination, dosage by soil values, and cost estimate.</p>
@@ -524,7 +524,7 @@
 
           <!-- Leaf Disease Detection -->
           <article class="service tilt">
-            <div class="img" style="background-image:url('/static/disease.webp')" aria-hidden></div>
+            <div class="img" style="background-image:url('../static/disease.webp')" aria-hidden></div>
             <div class="body">
               <h3>Leaf Disease Detection</h3>
               <p>Upload a leaf image — the AI returns the disease name, causes, symptoms and an actionable treatment guide.</p>
@@ -600,13 +600,13 @@
         title: 'My Smart Farm',
         subtitle: 'smart farming — soil to harvest',
         welcome: 'Welcome to My Smart Farm',
-        intro: 'One-stop platform for yield prediction, crop recommendation, fertilizer planning and leaf-disease detection using AI — designed for farmers, students and agritech developers.',
+        intro: 'One-stop platform for soil analysis, crop recommendation, fertilizer planning and leaf-disease detection using AI — designed for farmers, students and agritech developers.',
         calBtn: '📅 Open Calendar',
-        exploreBtn: 'Explore Services',
-        services: 'Our Services',
-        yield: 'Yield Prediction',
+        exploreBtn: 'View Crop Prices',
+        services: 'Crop Prices',
+        soil: 'Soil Analysis',
         soilDesc: 'Provide N, P, K, pH and (optionally) temperature & moisture. Get a soil quality score, missing nutrients and a downloadable soil report.',
-        yieldBtn: 'Predict Yield',
+        soilBtn: 'Open Soil Analysis',
         crop: 'Crop Recommendation',
         cropDesc: 'AI model suggests the top 4 crops best suited to your soil and location, along with expected risk and estimated profit.',
         cropBtn: 'Recommend Crops',
@@ -635,8 +635,8 @@
         welcome: 'माइ स्मार्ट फार्म में आपका स्वागत है',
         intro: 'मिट्टी विश्लेषण, फसल सिफारिश, उर्वरक योजना और पत्ते की बीमारी की पहचान के लिए एक ही स्थान — किसानों, छात्रों और एग्रीटेक डेवलपर्स के लिए।',
         calBtn: '📅 कैलेंडर खोलें',
-        exploreBtn: 'सेवाएँ देखें',
-        services: 'हमारी सेवाएँ',
+        exploreBtn: 'फसल की कीमतें देखें',
+        services: 'फसल की कीमतें',
         soil: 'मिट्टी विश्लेषण',
         soilDesc: 'N, P, K, pH और (वैकल्पिक) तापमान व नमी प्रदान करें। मिट्टी की गुणवत्ता स्कोर, कमी पोषक तत्व और डाउनलोड करने योग्य रिपोर्ट प्राप्त करें।',
         soilBtn: 'मिट्टी विश्लेषण खोलें',
@@ -668,8 +668,8 @@
         welcome: 'మై స్మార్ట్ ఫార్మ్‌కు స్వాగతం',
         intro: 'మట్టి విశ్లేషణ, పంట సిఫార్సు, ఎరువుల ప్రణాళిక మరియు ఆకుపచ్చ వ్యాధి గుర్తింపు కోసం ఒకే వేదిక — రైతులు, విద్యార్థులు మరియు అగ్రిటెక్ అభివృద్ధికర్తల కోసం.',
         calBtn: '📅 క్యాలెండర్ తెరవండి',
-        exploreBtn: 'సేవలను అన్వేషించండి',
-        services: 'మా సేవలు',
+        exploreBtn: 'పంట ధరలను చూడండి',
+        services: 'పంట ధరలు',
         soil: 'మట్టి విశ్లేషణ',
         soilDesc: 'N, P, K, pH మరియు (ఐచ్ఛికంగా) ఉష్ణోగ్రత & తేమను ఇవ్వండి. మట్టి నాణ్యత స్కోరు, లోపించిన పోషకాలు మరియు డౌన్‌లోడ్ చేయదగిన నివేదికను పొందండి.',
         soilBtn: 'మట్టి విశ్లేషణ తెరవండి',
@@ -705,8 +705,8 @@
       document.querySelector('.intro p').textContent = t.intro;
       document.getElementById('calBtn').textContent = t.calBtn;
       document.querySelector('.btn-ghost').textContent = t.exploreBtn;
-      document.querySelector('#services h2').textContent = t.services;
-      // Services
+      document.querySelector('#crop-prices h2').textContent = t.services;
+      // Crop Prices
       const serviceEls = document.querySelectorAll('.service');
       if(serviceEls.length === 4) {
         serviceEls[0].querySelector('h3').textContent = t.soil;
@@ -753,8 +753,7 @@
 
     // Calendar button
     document.getElementById('calBtn').addEventListener('click', ()=>{
-      const d = prompt('Pick a date (YYYY-MM-DD) for a reminder or demo:','2025-12-11');
-      if(d) alert('Calendar chosen: '+d+' (demo)');
+      window.location.href = '../static/calender.html';
     });
 
     // Small tilt effect for service cards using pointer movement
