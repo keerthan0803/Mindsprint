@@ -192,7 +192,25 @@
         predicting: 'Predicting...',
         analyzing: 'Analyzing soil parameters...',
         bestCrop: 'Best crop:',
-        aiRecommendation: 'AI-powered recommendation based on your soil parameters'
+        aiRecommendation: 'AI-powered recommendation based on your soil parameters',
+        backBtn: 'Back',
+        irrigationGuide: 'Irrigation & Watering Guide',
+        irrigationType: 'Irrigation Type:',
+        wateringFrequency: 'Watering Frequency:',
+        waterAmount: 'Water Amount:',
+        dripIrrigation: 'Drip Irrigation (Recommended for low rainfall)',
+        sprinklerIrrigation: 'Sprinkler Irrigation',
+        surfaceIrrigation: 'Surface Irrigation or Rainfed',
+        rainfedIrrigation: 'Rainfed (Minimal irrigation needed)',
+        daily: 'Daily or every 2 days',
+        every3to4days: 'Every 3-4 days',
+        weekly: 'Weekly (supplement as needed)',
+        drySpells: 'Only during dry spells',
+        increaseFrequency: '(Increase frequency in hot, dry weather)',
+        water20to30: '20-30mm per week',
+        water25to35: '25-35mm per week',
+        water15to25: '15-25mm per week',
+        water10to20: '10-20mm per week during dry periods'
       },
       hi: {
         title: 'माइ स्मार्ट फार्म',
@@ -212,7 +230,25 @@
         predicting: 'भविष्यवाणी कर रहे हैं...',
         analyzing: 'मिट्टी के पैरामीटर का विश्लेषण कर रहे हैं...',
         bestCrop: 'सर्वोत्तम फसल:',
-        aiRecommendation: 'आपकी मिट्टी के मापदंडों के आधार पर एआई-संचालित सिफारिश'
+        aiRecommendation: 'आपकी मिट्टी के मापदंडों के आधार पर एआई-संचालित सिफारिश',
+        backBtn: 'वापस',
+        irrigationGuide: 'सिंचाई और पानी देने की मार्गदर्शिका',
+        irrigationType: 'सिंचाई का प्रकार:',
+        wateringFrequency: 'पानी देने की आवृत्ति:',
+        waterAmount: 'पानी की मात्रा:',
+        dripIrrigation: 'ड्रिप सिंचाई (कम वर्षा के लिए अनुशंसित)',
+        sprinklerIrrigation: 'स्प्रिंकलर सिंचाई',
+        surfaceIrrigation: 'सतह सिंचाई या वर्षा आधारित',
+        rainfedIrrigation: 'वर्षा आधारित (न्यूनतम सिंचाई आवश्यक)',
+        daily: 'प्रतिदिन या हर 2 दिन',
+        every3to4days: 'हर 3-4 दिन',
+        weekly: 'साप्ताहिक (आवश्यकतानुसार पूरक)',
+        drySpells: 'केवल सूखे के दौरान',
+        increaseFrequency: '(गर्म, शुष्क मौसम में आवृत्ति बढ़ाएं)',
+        water20to30: '20-30mm प्रति सप्ताह',
+        water25to35: '25-35mm प्रति सप्ताह',
+        water15to25: '15-25mm प्रति सप्ताह',
+        water10to20: 'सूखे की अवधि के दौरान 10-20mm प्रति सप्ताह'
       },
       te: {
         title: 'మై స్మార్ట్ ఫార్మ్',
@@ -232,7 +268,25 @@
         predicting: 'అంచనా వేస్తోంది...',
         analyzing: 'మట్టి పరామితులను విశ్లేషిస్తోంది...',
         bestCrop: 'ఉత్తమ పంట:',
-        aiRecommendation: 'మీ మట్టి పరామితుల ఆధారంగా AI-శక్తితో కూడిన సిఫార్సు'
+        aiRecommendation: 'మీ మట్టి పరామితుల ఆధారంగా AI-శక్తితో కూడిన సిఫార్సు',
+        backBtn: 'వెనక్కి',
+        irrigationGuide: 'నీటిపారుదల మరియు నీరు పోసే మార్గదర్శకం',
+        irrigationType: 'నీటిపారుదల రకం:',
+        wateringFrequency: 'నీరు పోసే పౌనఃపున్యం:',
+        waterAmount: 'నీటి పరిమాణం:',
+        dripIrrigation: 'డ్రిప్ ఇర్రిగేషన్ (తక్కువ వర్షపాతానికి సిఫార్సు చేయబడింది)',
+        sprinklerIrrigation: 'స్ప్రింక్లర్ ఇర్రిగేషన్',
+        surfaceIrrigation: 'ఉపరితల నీటిపారుదల లేదా వర్షపాతం ఆధారిత',
+        rainfedIrrigation: 'వర్షపాతం ఆధారిత (కనిష్ట నీటిపారుదల అవసరం)',
+        daily: 'ప్రతిరోజు లేదా ప్రతి 2 రోజులు',
+        every3to4days: 'ప్రతి 3-4 రోజులు',
+        weekly: 'వారానికి (అవసరమైన విధంగా అనుబంధం)',
+        drySpells: 'పొడి కాలంలో మాత్రమే',
+        increaseFrequency: '(వేడి, పొడి వాతావరణంలో పౌనఃపున్యం పెంచండి)',
+        water20to30: 'వారానికి 20-30mm',
+        water25to35: 'వారానికి 25-35mm',
+        water15to25: 'వారానికి 15-25mm',
+        water10to20: 'పొడి కాలంలో వారానికి 10-20mm'
       }
     };
 
@@ -252,6 +306,8 @@
       document.querySelectorAll('label')[6].textContent = t.rainfall;
       document.getElementById('predictBtn').textContent = t.predictBtn;
       document.getElementById('resetBtn').textContent = t.resetBtn;
+      const backBtnText = document.querySelector('#backBtn').childNodes[2];
+      if (backBtnText) backBtnText.textContent = ' ' + t.backBtn;
     }
 
     // Load saved language preference
@@ -442,17 +498,71 @@
       }
     });
 
+    function getIrrigationRecommendation(rainfall, temperature, humidity, crop, t) {
+      // Determine irrigation type based on rainfall
+      let irrigationType = '';
+      let wateringFrequency = '';
+      let waterAmount = '';
+      
+      if (rainfall < 400) {
+        irrigationType = t.dripIrrigation;
+        wateringFrequency = t.daily;
+        waterAmount = t.water20to30;
+      } else if (rainfall >= 400 && rainfall < 800) {
+        irrigationType = t.sprinklerIrrigation;
+        wateringFrequency = t.every3to4days;
+        waterAmount = t.water25to35;
+      } else if (rainfall >= 800 && rainfall < 1200) {
+        irrigationType = t.surfaceIrrigation;
+        wateringFrequency = t.weekly;
+        waterAmount = t.water15to25;
+      } else {
+        irrigationType = t.rainfedIrrigation;
+        wateringFrequency = t.drySpells;
+        waterAmount = t.water10to20;
+      }
+      
+      // Adjust based on temperature and humidity
+      if (temperature > 30 && humidity < 60) {
+        wateringFrequency += ' ' + t.increaseFrequency;
+      }
+      
+      return { irrigationType, wateringFrequency, waterAmount };
+    }
+
     function displayAPIResults(data, inputs) {
       const topCrop = data.recommended_crop;
       const currentLang = langSelect.value;
       const t = translations[currentLang];
       
+      // Get irrigation recommendations with translations
+      const irrigation = getIrrigationRecommendation(inputs.rain, inputs.temp, inputs.hum, topCrop, t);
+      
       // Display result
       output.style.display = 'block';
       output.innerHTML = `
         <div>
-          <div style="font-size:18px;font-weight:800">${t.bestCrop} ${topCrop}</div>
-          <div style="color:var(--muted);font-size:13px;margin-top:6px">${t.aiRecommendation}</div>
+          <div style="font-size:18px;font-weight:800;margin-bottom:16px">${t.bestCrop} ${topCrop}</div>
+          <div style="color:var(--muted);font-size:13px;margin-bottom:16px">${t.aiRecommendation}</div>
+          
+          <div style="background:linear-gradient(135deg, #e0f7ff 0%, #b3e5ff 100%);padding:16px;border-radius:12px;margin-top:16px;border-left:4px solid #0ea5e9;">
+            <div style="font-weight:700;color:#0369a1;margin-bottom:12px;font-size:15px;">💧 ${t.irrigationGuide}</div>
+            
+            <div style="margin-bottom:10px;">
+              <strong style="color:#0c4a6e;">${t.irrigationType}</strong>
+              <div style="color:#075985;margin-top:4px;">${irrigation.irrigationType}</div>
+            </div>
+            
+            <div style="margin-bottom:10px;">
+              <strong style="color:#0c4a6e;">${t.wateringFrequency}</strong>
+              <div style="color:#075985;margin-top:4px;">${irrigation.wateringFrequency}</div>
+            </div>
+            
+            <div>
+              <strong style="color:#0c4a6e;">${t.waterAmount}</strong>
+              <div style="color:#075985;margin-top:4px;">${irrigation.waterAmount}</div>
+            </div>
+          </div>
         </div>
       `;
     }

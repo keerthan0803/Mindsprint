@@ -309,7 +309,12 @@
         disease: 'Disease',
         confidence: 'Confidence',
         treatment: 'Treatment',
-        uploadImageFirst: 'Please upload an image first'
+        uploadImageFirst: 'Please upload an image first',
+        backBtn: 'Back',
+        plantType: 'Plant Type:',
+        diseaseStatus: 'Disease Status:',
+        recommendedPesticide: 'Recommended Pesticide:',
+        consultExpert: 'Consult agricultural expert'
       },
       hi: {
         title: 'माइ स्मार्ट फार्म',
@@ -326,7 +331,12 @@
         disease: 'रोग',
         confidence: 'विश्वास',
         treatment: 'उपचार',
-        uploadImageFirst: 'कृपया पहले एक छवि अपलोड करें'
+        uploadImageFirst: 'कृपया पहले एक छवि अपलोड करें',
+        backBtn: 'वापस',
+        plantType: 'पौधे का प्रकार:',
+        diseaseStatus: 'रोग की स्थिति:',
+        recommendedPesticide: 'अनुशंसित कीटनाशक:',
+        consultExpert: 'कृषि विशेषज्ञ से परामर्श करें'
       },
       te: {
         title: 'మై స్మార్ట్ ఫార్మ్',
@@ -343,7 +353,12 @@
         disease: 'వ్యాధి',
         confidence: 'విశ్వాసం',
         treatment: 'చికిత్స',
-        uploadImageFirst: 'దయచేసి ముందుగా ఒక చిత్రాన్ని అప్‌లోడ్ చేయండి'
+        uploadImageFirst: 'దయచేసి ముందుగా ఒక చిత్రాన్ని అప్‌లోడ్ చేయండి',
+        backBtn: 'వెనక్కి',
+        plantType: 'మొక్క రకం:',
+        diseaseStatus: 'వ్యాధి స్థితి:',
+        recommendedPesticide: 'సిఫార్సు చేయబడిన పురుగుమందు:',
+        consultExpert: 'వ్యవసాయ నిపుణులను సంప్రదించండి'
       }
     };
 
@@ -376,6 +391,9 @@
         if (noImageText) noImageText.textContent = t.noImage;
         if (uploadPromptText) uploadPromptText.textContent = t.uploadPrompt;
       }
+      
+      const backBtnText = document.querySelector('#backBtn').childNodes[2];
+      if (backBtnText) backBtnText.textContent = ' ' + t.backBtn;
     }
 
     // Load saved language preference
@@ -581,6 +599,9 @@
     };
 
     function displayResults(data) {
+      const currentLang = langSelect.value;
+      const t = translations[currentLang];
+      
       const plant = data.plant || 'Unknown';
       const disease = data.disease || 'Unknown';
       
@@ -589,7 +610,7 @@
       let cleanDisease = disease.trim();
       
       // Search dictionary for matching pesticide
-      let pesticide = "Consult agricultural expert";
+      let pesticide = t.consultExpert;
       
       // Search through all dictionary keys to find a match
       for (const [key, value] of Object.entries(pesticides)) {
@@ -613,9 +634,9 @@
 
       resultsPlaceholder.innerHTML = `
         <div id="results-content">
-          <div style="margin-bottom:10px;"><b>Plant Type:</b> <span style="background:#f3f4fa;padding:4px 12px;border-radius:6px;font-weight:600;">${plant}</span></div>
-          <div style="margin-bottom:10px;"><b>Disease Status:</b> <span style="background:${isHealthy ? '#e6ffe6' : '#ffeaea'};color:${isHealthy ? '#2e8b57' : '#b33b3b'};padding:4px 12px;border-radius:6px;font-weight:600;">${disease}</span></div>
-          <div style="margin-bottom:10px;"><b>Recommended Pesticide:</b> <span style="background:#fff4e6;padding:8px 12px;border-radius:6px;font-weight:600;color:#d97706;display:block;margin-top:6px;border-left:3px solid #f59e0b;">${pesticide}</span></div>
+          <div style="margin-bottom:10px;"><b>${t.plantType}</b> <span style="background:#f3f4fa;padding:4px 12px;border-radius:6px;font-weight:600;">${plant}</span></div>
+          <div style="margin-bottom:10px;"><b>${t.diseaseStatus}</b> <span style="background:${isHealthy ? '#e6ffe6' : '#ffeaea'};color:${isHealthy ? '#2e8b57' : '#b33b3b'};padding:4px 12px;border-radius:6px;font-weight:600;">${disease}</span></div>
+          <div style="margin-bottom:10px;"><b>${t.recommendedPesticide}</b> <span style="background:#fff4e6;padding:8px 12px;border-radius:6px;font-weight:600;color:#d97706;display:block;margin-top:6px;border-left:3px solid #f59e0b;">${pesticide}</span></div>
         </div>
       `;
     }
