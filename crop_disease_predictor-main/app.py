@@ -50,6 +50,19 @@ try:
 except Exception as e:
     print(f'Error loading yield model: {str(e)}')
 
+# Fertilizer Recommendation Rules (Simple rule-based system)
+FERTILIZER_RULES = {
+    'Rice': {'N': (80, 120), 'P': (40, 60), 'K': (40, 60), 'fertilizer': 'Urea'},
+    'Wheat': {'N': (100, 150), 'P': (50, 70), 'K': (50, 70), 'fertilizer': 'DAP'},
+    'Maize': {'N': (120, 160), 'P': (60, 80), 'K': (40, 60), 'fertilizer': '14-35-14'},
+    'Cotton': {'N': (120, 180), 'P': (60, 90), 'K': (60, 90), 'fertilizer': '10-26-26'},
+    'Sugarcane': {'N': (200, 300), 'P': (80, 120), 'K': (100, 150), 'fertilizer': '17-17-17'},
+    'Potato': {'N': (100, 150), 'P': (80, 120), 'K': (100, 150), 'fertilizer': '19-19-19'},
+    'Tomato': {'N': (100, 150), 'P': (60, 90), 'K': (120, 180), 'fertilizer': '20-20-20'},
+}
+
+print('Using rule-based fertilizer recommendation system')
+
 # Helpers for fallbacks
 def _default_disease_info(class_names):
     """Build a basic mapping from class label to plant/disease text."""
@@ -132,6 +145,10 @@ def disease_predictor():
 @app.route('/crop.html')
 def crop_recommendation():
     return render_template('crop.html')
+
+@app.route('/fertilizer.html')
+def fertilizer_prediction():
+    return render_template('fertilizer.html')
 
 @app.route('/price.html')
 def crop_prices():
@@ -237,6 +254,85 @@ def crop_predict():
 @app.route('/yeild.html')
 def yield_prediction():
     return render_template('yeild.html')
+
+@app.route('/api/fertilizer-predict', methods=['POST'])
+def fertilizer_predict():
+    try:
+        data = request.get_json()
+        
+        # Extract features
+        n = float(data.get('n', 0))
+        p = float(data.get('p', 0))
+        k = float(data.get('k', 0))
+        temperature = float(data.get('temperature', 25))
+        humidity = float(data.get('humidity', 60))
+        soiltype = data.get('soiltype', 'loamy').lower()
+        crop = data.get('crop', 'rice').title()
+        
+        # Simple rule-based fertilizer recommendation
+        predicted_fertilizer = 'NPK 10-26-26'  # Default
+        tips = []
+        
+        # Get crop-specific recommendations
+        if crop in FERTILIZER_RULES:
+            rule = FERTILIZER_RULES[crop]
+            predicted_fertilizer = rule['fertilizer']
+            
+            # Check NPK levels and provide guidance
+            if n < rule['N'][0]:
+                tips.append(f'Nitrogen is low. Apply {predicted_fertilizer} to increase N levels.')
+            elif n > rule['N'][1]:
+                tips.append(f'Nitrogen is sufficient. Reduce application to avoid over-fertilization.')
+            else:
+                tips.append(f'Nitrogen levels are optimal for {crop}.')
+            
+            if p < rule['P'][0]:
+                tips.append(f'Phosphorus is low. Consider adding bone meal or rock phosphate.')
+            elif p > rule['P'][1]:
+                tips.append(f'Phosphorus is sufficient.')
+            else:
+                tips.append(f'Phosphorus levels are optimal for {crop}.')
+                
+            if k < rule['K'][0]:
+                tips.append(f'Potassium is low. Consider adding potash or wood ash.')
+            elif k > rule['K'][1]:
+                tips.append(f'Potassium is sufficient.')
+            else:
+                tips.append(f'Potassium levels are optimal for {crop}.')
+        else:
+            # Generic recommendation for unknown crops
+            predicted_fertilizer = '10-26-26'
+            tips.append(f'Using generic recommendation for {crop}. For best results, consult local agricultural extension.')
+        
+        # Soil-specific tips
+        if soiltype == 'sandy':
+            tips.append('Sandy soils drain fast — use split doses and add organic matter.')
+        elif soiltype == 'clayey':
+            tips.append('Clayey soils retain nutrients — avoid over-application.')
+        elif soiltype == 'loamy':
+            tips.append('Loamy soil is ideal. Maintain balanced fertilization.')
+        
+        # Temperature and humidity tips
+        if temperature > 35:
+            tips.append('High temperature: Apply fertilizer in cooler parts of the day.')
+        if humidity > 80:
+            tips.append('High humidity: Ensure good drainage to prevent nutrient leaching.')
+        
+        return jsonify({
+            'success': True,
+            'predicted_fertilizer': predicted_fertilizer,
+            'tips': tips,
+            'input_values': {
+                'N': n, 'P': p, 'K': k,
+                'temperature': temperature,
+                'humidity': humidity,
+                'soiltype': soiltype,
+                'crop': crop
+            }
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/yield-predict', methods=['POST'])
 def yield_predict():

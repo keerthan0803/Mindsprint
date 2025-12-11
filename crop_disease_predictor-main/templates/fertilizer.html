@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fertilizer Predictor</title>
+  <style>
+    :root{
+      --bg: #f3fbf6;
+      --card: #ffffff;
+      --muted:#556b55;
+      --accent:#2e8b57;
+      --accent2: #b6e2c6;
+      --glass: rgba(255,255,255,0.7);
+      --radius:18px;
+      --shadow: 0 8px 32px rgba(30,50,30,0.10);
+      --shadow-hover: 0 16px 40px rgba(46,139,87,0.18);
+      --gradient: linear-gradient(120deg, #e0ffe6 0%, #b6e2c6 100%);
+      --gradient2: linear-gradient(90deg, #e0ffe6 0%, #f3fbf6 100%);
+      color-scheme: light;
+    }
+    [data-theme="dark"]{
+      --bg: #000000;
+      --card: #111111;
+      --muted: #b6e2c6;
+      --accent: #8fe0a2;
+      --accent2: #222;
+      --glass: rgba(20,20,20,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.32);
+      --shadow-hover: 0 16px 40px rgba(143,224,162,0.22);
+      --gradient: linear-gradient(120deg, #232323 0%, #000 100%);
+      --gradient2: linear-gradient(90deg, #232323 0%, #000 100%);
+      color-scheme: dark;
+    }
+    [data-theme="forest"]{
+      --bg: #1a2e22;
+      --card: #223c2b;
+      --muted: #d0f5e2;
+      --accent: #7ed957;
+      --accent2: #2e8b57;
+      --glass: rgba(34,60,43,0.7);
+      --shadow: 0 8px 32px rgba(46,139,87,0.22);
+      --shadow-hover: 0 16px 40px rgba(126,217,87,0.22);
+      --gradient: linear-gradient(120deg, #2e8b57 0%, #1a2e22 100%);
+      --gradient2: linear-gradient(90deg, #2e8b57 0%, #1a2e22 100%);
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: var(--gradient2), radial-gradient(1200px 600px at 10% 10%, rgba(46,139,87,0.10), transparent), linear-gradient(180deg,#f7fff6 0%,var(--bg) 100%);
+      background-attachment: fixed;
+      color:#113322;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      min-height:100vh;
+      transition:background .35s ease, color .35s ease;
+      letter-spacing: 0.01em;
+    }
+    .container{
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 12px;
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:16px 28px;
+      background:var(--glass);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      border: 1.5px solid #e0ffe6;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+    .logo{
+      width:56px;height:56px;border-radius:16px;display:grid;place-items:center;
+      font-weight:700;font-size:20px;
+      background:linear-gradient(135deg,var(--accent), #2b6b4a);
+      color:white;
+      box-shadow:0 8px 24px rgba(46,139,87,0.22);
+      border: 2.5px solid #b6e2c6;
+      transition: box-shadow .3s;
+    }
+    .logo:hover { box-shadow: 0 16px 40px rgba(46,139,87,0.25); }
+    .title{font-size:22px;font-weight:800;letter-spacing:0.01em;}
+    .subtitle{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0.02em;}
+    .header-actions{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; min-width:0; }
+    .theme-toggle{ background:var(--glass); border:1.5px solid #b6e2c6; padding:8px; border-radius:14px; box-shadow:0 2px 8px rgba(46,139,87,0.04); min-width:0; }
+    .theme-toggle button{border:0;background:transparent;padding:7px 10px;border-radius:10px;cursor:pointer;font-size:18px;transition:background .2s;}
+    .theme-toggle button:hover{background:var(--accent2);color:var(--accent);}
+
+    /* --- New Page Content Styles --- */
+    main{
+      display:flex;
+      gap:24px;
+      align-items:flex-start;
+      margin-top:18px;
+      margin-bottom:40px;
+      flex-wrap:wrap;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.86), var(--card));
+      border-radius:22px;
+      padding:20px;
+      box-shadow: var(--shadow);
+      border:1px solid rgba(0,0,0,0.04);
+      flex:1 1 480px;
+      min-width:280px;
+      transition: transform .22s ease, box-shadow .22s ease;
+    }
+    .panel:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
+
+    .center-heading{
+      text-align:center;
+      margin-bottom:16px;
+    }
+    .center-heading h1{
+      margin:6px 0;
+      font-size:28px;
+      letter-spacing:0.01em;
+    }
+    .center-heading p{ margin:0; color:var(--muted); font-size:13px; }
+
+    form.grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    @media (max-width:820px){
+      form.grid{ grid-template-columns: 1fr; }
+      main{ flex-direction:column; }
+    }
+
+    label{ font-size:13px; color:var(--muted); display:block; margin-bottom:6px; font-weight:600; }
+    input[type="number"], select, input[type="text"]{
+      width:100%;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1.5px solid rgba(0,0,0,0.06);
+      background:rgba(255,255,255,0.9);
+      outline:none;
+      transition: box-shadow .12s, transform .12s;
+      font-size:14px;
+    }
+    input:focus, select:focus { box-shadow: 0 6px 18px rgba(46,139,87,0.08); transform: translateY(-1px); border-color: var(--accent); }
+
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+
+    .controls{
+      display:flex;
+      gap:12px;
+      margin-top:12px;
+    }
+    .btn{
+      background: linear-gradient(90deg,var(--accent), #2b6b4a);
+      color:white;
+      border:0;
+      padding:10px 16px;
+      border-radius:12px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 8px 20px rgba(46,139,87,0.12);
+      transition: transform .12s ease, box-shadow .12s ease, opacity .12s;
+    }
+    .btn.secondary{
+      background:transparent;
+      color:var(--muted);
+      border:1.2px solid rgba(0,0,0,0.06);
+      box-shadow:none;
+      font-weight:600;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity:0.55; cursor:not-allowed; }
+
+    .result{
+      padding:18px;
+      border-radius:14px;
+      background: linear-gradient(180deg, rgba(250,255,249,0.9), rgba(245,255,244,0.7));
+      border: 1px solid rgba(46,139,87,0.08);
+      box-shadow: 0 6px 20px rgba(46,139,87,0.06);
+      margin-top:8px;
+    }
+    .pill{ display:inline-block; padding:6px 10px; border-radius:999px; background:rgba(46,139,87,0.12); color:var(--accent); font-weight:700; font-size:13px; margin-right:8px; }
+
+    .disclaimer{ font-size:12px; color:#664; margin-top:10px; background:rgba(255,240,230,0.6); padding:10px;border-radius:10px; }
+
+    /* small helpers */
+    .muted{ color:var(--muted); font-size:13px; }
+    .flex-row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .card-list{ display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+
+    footer{ text-align:center; color:var(--muted); font-size:13px; margin-top:8px; }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden><img src="../static/logo.png" alt="My Smart Farm Logo" style="width:48px;height:48px;display:block;border-radius:12px;object-fit:contain;box-shadow:0 6px 18px rgba(46,139,87,0.22)" /></div>
+        <div>
+          <div class="title">My Smart Farm</div>
+          <div class="subtitle">smart farming — soil to harvest</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" onclick="location.href='/'" style="padding:8px 16px;font-size:14px;margin-right:10px;">🏠 Home</button>
+        <div class="lang-select">
+          <select id="langBox" style="border:none;background:transparent;font-size:15px;padding:6px 12px;border-radius:10px;">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="te">తెలుగు</option>
+          </select>
+        </div>
+        <div class="theme-toggle">
+          <button id="themeBtn" title="Toggle theme">🌙</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Form / Input Panel -->
+      <section class="panel" aria-labelledby="fert-heading">
+        <div class="center-heading">
+          <h1 id="fert-heading">Fertilizer Prediction</h1>
+          <p>Enter soil nutrients and conditions — get a suggested fertilizer mix (demo).</p>
+        </div>
+
+        <form id="fertForm" class="grid" onsubmit="return false;" aria-describedby="disclaimer">
+
+          <div>
+            <label for="city">City / Region</label>
+            <input id="city" name="city" type="text" placeholder="Enter your city or region">
+            <div class="small muted"></div>
+          </div>
+
+          <div>
+            <label for="temperature">Temperature (°C)</label>
+            <input id="temperature" name="temperature" type="number" step="0.1" placeholder="e.g. 28">
+          </div>
+
+          <div>
+            <label for="humidity">Humidity (%)</label>
+            <input id="humidity" name="humidity" type="number" step="0.1" placeholder="e.g. 60">
+          </div>
+
+          <div>
+            <label for="soiltype">Soil type</label>
+            <select id="soiltype" name="soiltype" required>
+              <option value="loamy">Loamy</option>
+              <option value="sandy">Sandy</option>
+              <option value="clayey">Clayey</option>
+              <option value="silty">Silty</option>
+            </select>
+          </div>
+
+          <div style="grid-column: 1 / -1;">
+            <label for="crop">Crop type</label>
+            <select id="crop" name="crop" required>
+              <option value="Rice">Rice</option>
+              <option value="Wheat">Wheat</option>
+              <option value="Maize">Maize</option>
+              <option value="Cotton">Cotton</option>
+              <option value="Sugarcane">Sugarcane</option>
+              <option value="Potato">Potato</option>
+              <option value="Tomato">Tomato</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="moisture">Soil moisture (%)</label>
+            <input id="moisture" name="moisture" type="number" min="0" max="100" step="1" placeholder="e.g. 45">
+          </div>
+
+          <div>
+            <label for="n">Nitrogen (N) — current (kg/ha)</label>
+            <input id="n" name="n" type="number" min="0" step="1" placeholder="e.g. 30" required>
+          </div>
+
+          <div>
+            <label for="p">Phosphorus (P) — current (kg/ha)</label>
+            <input id="p" name="p" type="number" min="0" step="1" placeholder="e.g. 18" required>
+          </div>
+
+          <div>
+            <label for="k">Potassium (K) — current (kg/ha)</label>
+            <input id="k" name="k" type="number" min="0" step="1" placeholder="e.g. 40" required>
+          </div>
+
+          <div style="grid-column:1 / -1" class="flex-row">
+            <button id="predictBtn" class="btn" type="button">Predict Fertilizer</button>
+            <button id="clearBtn" class="btn secondary" type="button">Clear</button>
+                      </div>
+        </form>
+
+       
+      </section>
+
+      <!-- Result Panel -->
+      <aside class="panel" aria-live="polite" aria-atomic="true">
+        <div class="center-heading">
+          <h2 style="font-size:20px;margin:0;">Prediction Result</h2>
+          <p class="muted">Suggested fertilizer(s) and approximate amounts</p>
+        </div>
+
+        <div id="resultArea" class="result" style="display:block;">
+          <div class="pill" id="regionPill">Region: —</div>
+          <div style="margin-top:12px">
+            <div id="summary" class="muted">Fill the form and click <strong>Predict Fertilizer</strong>.</div>
+            <div id="suggestions" class="card-list" style="display:none;"></div>
+          </div>
+          <div id="extraTips" style="margin-top:12px; display:none;">
+            <strong>Notes:</strong>
+            <ul id="tipsList" class="muted"></ul>
+          </div>
+        </div>
+
+        <footer>
+          <div class="muted">Hints: Use soil test values (kg/ha) for N, P, K if available. Values above 200 may be unusual.</div>
+        </footer>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    // Theme toggle (keeps your script)
+    const themeBtn = document.getElementById('themeBtn');
+    const body = document.body;
+    const themes = [
+      {name: 'light', icon: '🌙', label: 'Switch to dark theme'},
+      {name: 'dark', icon: '🌲', label: 'Switch to forest theme'},
+      {name: 'forest', icon: '☀️', label: 'Switch to light theme'}
+    ];
+    let stored = localStorage.getItem('msf-theme') || 'light';
+    let themeIdx = themes.findIndex(t => t.name === stored);
+    if(themeIdx === -1) themeIdx = 0;
+    function setTheme(idx) {
+      const t = themes[idx];
+      body.setAttribute('data-theme', t.name);
+      themeBtn.textContent = t.icon;
+      themeBtn.title = t.label;
+      localStorage.setItem('msf-theme', t.name);
+    }
+    setTheme(themeIdx);
+    themeBtn.addEventListener('click', ()=>{
+      themeIdx = (themeIdx + 1) % themes.length;
+      setTheme(themeIdx);
+    });
+
+    // Utility: round to 1 decimal
+    function r1(x){ return Math.round(x*10)/10; }
+
+    // Simple rule-based fertilizer "predictor"
+    // -> This is a demo heuristic only (NOT a replacement for lab or agronomist)
+    function predict(data){
+      // Target nutrient (example simple targets per crop - kg/ha)
+      const cropTargets = {
+        rice:   {N:120, P:40, K:60},
+        wheat:  {N:100, P:40, K:40},
+        maize:  {N:140, P:50, K:60},
+        cotton: {N:120, P:60, K:60},
+        sugarcane:{N:150, P:60, K:90},
+        vegetable:{N:120, P:60, K:80},
+        pulses: {N:20, P:40, K:40},
+        oilseeds:{N:60, P:40, K:40}
+      };
+      const targets = cropTargets[data.crop] || {N:100,P:40,K:40};
+
+      // Compute deficits (target - current). If negative => surplus
+      const deficit = {
+        N: Math.max(0, targets.N - data.n),
+        P: Math.max(0, targets.P - data.p),
+        K: Math.max(0, targets.K - data.k)
+      };
+
+      // Fertilizer nutrient content approximations (nutrient% expressed as decimal)
+      // Urea: ~46% N ; DAP: ~18% N + 46% P2O5 (P as P2O5 -> approx 20%P but using simplified mapping)
+      // For simplicity we use common names and rough rates:
+      const ferts = [];
+
+      // If N deficit is significant
+      if(deficit.N > 15){
+        // Recommend Urea (46% N)
+        // required urea_kg = (deficit.N kg of N) / 0.46
+        const ureaKg = deficit.N / 0.46;
+        ferts.push({
+          name: 'Urea (46% N)',
+          reason: 'Correct nitrogen deficiency',
+          amountKgPerHa: r1(ureaKg)
+        });
+      }
+
+      // If P deficit
+      if(deficit.P > 8){
+        // Recommend DAP roughly (46% P2O5 ~ 20% P). We'll suggest DAP amount using P as 0.2
+        const dapKg = deficit.P / 0.20; // approximate
+        ferts.push({
+          name: 'DAP (Diammonium phosphate)',
+          reason: 'Correct phosphorus deficiency',
+          amountKgPerHa: r1(dapKg)
+        });
+      }
+
+      // If K deficit
+      if(deficit.K > 10){
+        // Recommend MOP/Potash (approx 60% K2O -> approx 50% K). We'll use 0.5
+        const mopKg = deficit.K / 0.5;
+        ferts.push({
+          name: 'Muriate of Potash (MOP / KCl)',
+          reason: 'Correct potassium deficiency',
+          amountKgPerHa: r1(mopKg)
+        });
+      }
+
+      // If no large deficits, recommend balanced NPK or soil testing
+      if(ferts.length === 0){
+        // If all nutrients are near or above target
+        ferts.push({
+          name: 'Balanced NPK (e.g., 10-26-26 or 12-32-16 depending on crop)',
+          reason: 'Nutrients look adequate — consider maintenance dose or split application and re-test soil',
+          amountKgPerHa: 'Apply per local recommendation / lab test'
+        });
+      }
+
+      // Extra tips based on soil type / moisture
+      const tips = [];
+      if(data.soiltype === 'sandy') tips.push('Sandy soils drain fast — use split doses and organic matter to retain nutrients.');
+      if(data.soiltype === 'clayey') tips.push('Clayey soils retain nutrients — avoid over-application and improve drainage if waterlogging occurs.');
+      if(data.moisture === 'dry') tips.push('Dry soil: irrigate before applying many fertilizers to reduce volatilization and ensure nutrient uptake.');
+      if(data.moisture === 'wet') tips.push('Wet soil: delay application if waterlogged; nutrient losses are possible through runoff.');
+      if(data.crop === 'rice') tips.push('For rice, consider split N applications (basal + tillering + panicle initiation).');
+      if(data.crop === 'maize' || data.crop === 'wheat') tips.push('Split N (basal + top-dress) often improves uptake and reduces losses.');
+
+      return {targets, deficit, ferts, tips};
+    }
+
+    // DOM wiring
+    const form = document.getElementById('fertForm');
+    const predictBtn = document.getElementById('predictBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const suggestionsEl = document.getElementById('suggestions');
+    const summaryEl = document.getElementById('summary');
+    const regionPill = document.getElementById('regionPill');
+    const tipsList = document.getElementById('tipsList');
+    const extraTips = document.getElementById('extraTips');
+
+    function getFormData(){
+      return {
+        n: Number(document.getElementById('n').value || 0),
+        p: Number(document.getElementById('p').value || 0),
+        k: Number(document.getElementById('k').value || 0),
+        temperature: Number(document.getElementById('temperature').value || 25),
+        humidity: Number(document.getElementById('humidity').value || 60),
+        city: (document.getElementById('city').value || '').trim(),
+        moisture: document.getElementById('moisture').value,
+        soiltype: document.getElementById('soiltype').value,
+        crop: document.getElementById('crop').value
+      };
+    }
+
+    function renderResult(res, data){
+      regionPill.textContent = 'Region: ' + (data.city || '—');
+
+      // Summary text
+      summaryEl.innerHTML = `
+        Crop: <strong>${data.crop}</strong> · Current (N:${data.n} , P:${data.p} , K:${data.k}) kg/ha · Targets (N:${res.targets.N} , P:${res.targets.P} , K:${res.targets.K})
+      `;
+
+      // Render suggestions
+      suggestionsEl.innerHTML = '';
+      suggestionsEl.style.display = 'block';
+      res.ferts.forEach(f => {
+        const node = document.createElement('div');
+        node.style.padding = '12px';
+        node.style.borderRadius = '12px';
+        node.style.background = 'linear-gradient(180deg, rgba(255,255,255,0.95), rgba(250,255,250,0.9))';
+        node.style.border = '1px solid rgba(46,139,87,0.06)';
+        node.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div>
+              <div style="font-weight:800; font-size:15px;">${f.name}</div>
+              <div class="muted" style="margin-top:6px;">${f.reason}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:800; font-size:15px;">${f.amountKgPerHa} ${typeof f.amountKgPerHa === 'number' ? 'kg/ha' : ''}</div>
+              <div class="muted small">approx</div>
+            </div>
+          </div>
+        `;
+        suggestionsEl.appendChild(node);
+      });
+
+      // Tips
+      tipsList.innerHTML = '';
+      if(res.tips && res.tips.length){
+        res.tips.forEach(t => {
+          const li = document.createElement('li');
+          li.textContent = t;
+          tipsList.appendChild(li);
+        });
+        extraTips.style.display = 'block';
+      } else {
+        extraTips.style.display = 'none';
+      }
+    }
+
+    predictBtn.addEventListener('click', async ()=>{
+      // Basic validation
+      const nEl = document.getElementById('n');
+      const pEl = document.getElementById('p');
+      const kEl = document.getElementById('k');
+      if(!nEl.value || !pEl.value || !kEl.value){
+        alert('Please enter values for N, P and K (use soil-test values if possible).');
+        return;
+      }
+
+      const data = getFormData();
+      
+      // Disable button during prediction
+      predictBtn.disabled = true;
+      predictBtn.textContent = 'Predicting...';
+      
+      try {
+        // Call Flask API
+        const response = await fetch('/api/fertilizer-predict', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          // If API returns prediction, use it
+          if (result.predicted_fertilizer) {
+            // Format API result for display
+            const apiResult = {
+              targets: {N: data.n, P: data.p, K: data.k},
+              deficit: {N: 0, P: 0, K: 0},
+              ferts: [{
+                name: result.predicted_fertilizer,
+                reason: 'AI-based recommendation',
+                amountKgPerHa: 'Follow package instructions'
+              }],
+              tips: result.tips || []
+            };
+            renderResult(apiResult, data);
+          } else {
+            // Fallback to client-side prediction
+            const res = predict(data);
+            renderResult(res, data);
+          }
+        } else {
+          // If API fails, use client-side prediction as fallback
+          console.warn('API failed, using client-side prediction:', result.error);
+          const res = predict(data);
+          renderResult(res, data);
+        }
+      } catch (error) {
+        console.error('Prediction error:', error);
+        // Fallback to client-side prediction
+        const res = predict(data);
+        renderResult(res, data);
+      } finally {
+        predictBtn.disabled = false;
+        predictBtn.textContent = 'Predict Fertilizer';
+      }
+    });
+
+    clearBtn.addEventListener('click', ()=>{
+      form.reset();
+      suggestionsEl.style.display = 'none';
+      summaryEl.textContent = 'Fill the form and click Predict Fertilizer.';
+      regionPill.textContent = 'Region: —';
+      extraTips.style.display = 'none';
+    });
+
+    // Initialize small UI state
+    suggestionsEl.style.display = 'none';
+    extraTips.style.display = 'none';
+  </script>
+</body>
+</html>
