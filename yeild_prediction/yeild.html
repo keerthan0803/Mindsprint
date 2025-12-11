@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crop Yield Prediction</title>
+  <style>
+    :root{
+      --bg: #f3fbf6;
+      --card: #ffffff;
+      --muted:#556b55;
+      --accent:#2e8b57;
+      --accent2: #b6e2c6;
+      --glass: rgba(255,255,255,0.7);
+      --radius:18px;
+      --shadow: 0 8px 32px rgba(30,50,30,0.10);
+      --shadow-hover: 0 16px 40px rgba(46,139,87,0.18);
+      --gradient: linear-gradient(120deg, #e0ffe6 0%, #b6e2c6 100%);
+      --gradient2: linear-gradient(90deg, #e0ffe6 0%, #f3fbf6 100%);
+      color-scheme: light;
+    }
+
+    /* Dark + Forest Modes */
+    [data-theme="dark"]{
+      --bg: #000000;
+      --card: #111111;
+      --muted: #b6e2c6;
+      --accent: #8fe0a2;
+      --accent2: #222;
+      --glass: rgba(20,20,20,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.32);
+      --shadow-hover: 0 16px 40px rgba(143,224,162,0.22);
+    }
+    [data-theme="forest"]{
+      --bg: #1a2e22;
+      --card: #223c2b;
+      --muted: #d0f5e2;
+      --accent: #7ed957;
+      --accent2: #2e8b57;
+      --glass: rgba(34,60,43,0.7);
+      --shadow: 0 8px 32px rgba(46,139,87,0.22);
+      --shadow-hover: 0 16px 40px rgba(126,217,87,0.22);
+    }
+
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family: 'Inter', system-ui;
+      background: var(--gradient2);
+      padding: 28px;
+      min-height:100vh;
+    }
+
+    .container{
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 28px;
+      background:var(--glass);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      margin-bottom: 25px;
+    }
+
+    .brand{display:flex;align-items:center;gap:12px;}
+    .logo img{
+      width:56px;height:56px;border-radius:16px;
+      object-fit:contain;
+    }
+    .title{font-size:22px;font-weight:800;}
+    .subtitle{font-size:13px;color:var(--muted);}
+
+    /* FORM CARD */
+    .card{
+      background: var(--card);
+      padding: 32px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(4px);
+    }
+
+    .heading{
+      text-align:center;
+      font-size:28px;
+      font-weight:800;
+      margin-bottom: 22px;
+      color: var(--accent);
+    }
+
+    .form-group{
+      display:flex;
+      flex-direction:column;
+      margin-bottom:16px;
+    }
+    label{
+      font-weight:600;
+      margin-bottom:6px;
+    }
+    input{
+      padding:12px 14px;
+      border-radius:12px;
+      border:1.5px solid var(--accent2);
+      background:var(--glass);
+      outline:none;
+      font-size:15px;
+    }
+    input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(46,139,87,0.25);
+    }
+
+    button{
+      margin-top:18px;
+      width:100%;
+      padding:14px;
+      background:var(--accent);
+      border:none;
+      color:white;
+      font-size:17px;
+      border-radius:14px;
+      cursor:pointer;
+      transition:0.25s;
+    }
+    button:hover{
+      background:#226f45;
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* OUTPUT */
+    .output-box{
+      margin-top:22px;
+      padding:20px;
+      background:var(--glass);
+      border-radius:16px;
+      border-left:5px solid var(--accent);
+      font-size:18px;
+      font-weight:600;
+      display:none;
+    }
+
+    @media(max-width:600px){
+      .card{padding:22px;}
+      .heading{font-size:24px;}
+    }
+  </style>
+</head>
+<body data-theme="light">
+
+  <div class="container">
+
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <div class="logo"><img src="logo.png" alt="Logo"></div>
+        <div>
+          <div class="title">My Smart Farm</div>
+          <div class="subtitle">smart farming — soil to harvest</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- FORM CARD -->
+    <div class="card">
+      <div class="heading">🌾 Crop Yield Prediction</div>
+
+      <div class="form-group">
+        <label>Rainfall (mm)</label>
+        <input id="rain" type="number" placeholder="Enter rainfall">
+      </div>
+
+      <div class="form-group">
+        <label>Soil Quality Index</label>
+        <input id="soil" type="number" placeholder="Enter soil index">
+      </div>
+
+      <div class="form-group">
+        <label>Farm Size (hectares)</label>
+        <input id="size" type="number" placeholder="Enter area">
+      </div>
+
+      <div class="form-group">
+        <label>Sunlight (hours)</label>
+        <input id="sun" type="number" placeholder="Enter sunlight hours">
+      </div>
+
+      <div class="form-group">
+        <label>Fertilizers (kg)</label>
+        <input id="fert" type="number" placeholder="Enter fertilizer amount">
+      </div>
+
+      <button onclick="predictYield()">Predict Crop Yield</button>
+
+      <div id="output" class="output-box"></div>
+    </div>
+
+  </div>
+
+  <script>
+    function predictYield(){
+      let rain = Number(document.getElementById("rain").value);
+      let soil = Number(document.getElementById("soil").value);
+      let size = Number(document.getElementById("size").value);
+      let sun  = Number(document.getElementById("sun").value);
+      let fert = Number(document.getElementById("fert").value);
+
+      if(!rain || !soil || !size || !sun || !fert){
+        alert("Please fill all fields.");
+        return;
+      }
+
+      // Simple sample formula
+      let yieldValue = (rain * 0.3) + (soil * 2) + (size * 1.5) + (sun * 0.8) + (fert * 1.2);
+
+      document.getElementById("output").style.display = "block";
+      document.getElementById("output").innerHTML = "Predicted Crop Yield: <b>" + yieldValue.toFixed(2) + " units</b>";
+    }
+  </script>
+
+</body>
+</html>

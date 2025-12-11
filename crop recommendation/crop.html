@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fertilizer Predictor — Best Crop Suggestion</title>
+  <style>
+    :root{
+      --bg: #f3fbf6;
+      --card: #ffffff;
+      --muted:#556b55;
+      --accent:#2e8b57;
+      --accent2: #b6e2c6;
+      --glass: rgba(255,255,255,0.75);
+      --radius:18px;
+      --shadow: 0 8px 32px rgba(30,50,30,0.10);
+      --shadow-hover: 0 16px 40px rgba(46,139,87,0.18);
+      --gradient: linear-gradient(120deg, #e0ffe6 0%, #b6e2c6 100%);
+      --gradient2: linear-gradient(90deg, #e0ffe6 0%, #f3fbf6 100%);
+      color-scheme: light;
+    }
+    [data-theme="dark"]{
+      --bg: #000000;
+      --card: #111111;
+      --muted: #b6e2c6;
+      --accent: #8fe0a2;
+      --accent2: #222;
+      --glass: rgba(20,20,20,0.75);
+      --shadow: 0 8px 32px rgba(0,0,0,0.32);
+      --shadow-hover: 0 16px 40px rgba(143,224,162,0.22);
+      --gradient: linear-gradient(120deg, #232323 0%, #000 100%);
+      --gradient2: linear-gradient(90deg, #232323 0%, #000 100%);
+      color-scheme: dark;
+    }
+    [data-theme="forest"]{
+      --bg: #1a2e22;
+      --card: #223c2b;
+      --muted: #d0f5e2;
+      --accent: #7ed957;
+      --accent2: #2e8b57;
+      --glass: rgba(34,60,43,0.75);
+      --shadow: 0 8px 32px rgba(46,139,87,0.22);
+      --shadow-hover: 0 16px 40px rgba(126,217,87,0.22);
+      --gradient: linear-gradient(120deg, #2e8b57 0%, #1a2e22 100%);
+      --gradient2: linear-gradient(90deg, #2e8b57 0%, #1a2e22 100%);
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: var(--gradient2), radial-gradient(1200px 600px at 10% 10%, rgba(46,139,87,0.10), transparent), linear-gradient(180deg,#f7fff6 0%,var(--bg) 100%);
+      background-attachment: fixed;
+      color:#113322;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      min-height:100vh;
+      transition:background .35s ease, color .35s ease;
+      letter-spacing: 0.01em;
+    }
+    .container{max-width:1100px;margin:0 auto;padding:0 12px;}
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      padding:16px 20px;background:var(--glass);
+      border-radius:20px;box-shadow:var(--shadow);backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(182,226,198,0.6);margin-bottom:18px;flex-wrap:wrap;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .logo{width:56px;height:56px;border-radius:12px;display:grid;place-items:center;font-weight:700;font-size:20px;background:linear-gradient(135deg,var(--accent), #2b6b4a);color:white;box-shadow:0 8px 24px rgba(46,139,87,0.22);border:2px solid var(--accent2)}
+    .title{font-size:20px;font-weight:800}
+    .subtitle{font-size:12px;color:var(--muted)}
+    main{display:grid;grid-template-columns: 1fr;gap:20px;align-items:start}
+    @media (max-width:980px){main{grid-template-columns:1fr}}
+    .card{background:var(--card);border-radius:18px;padding:18px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,0.04)}
+    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    @media (max-width:520px){.form-grid{grid-template-columns:1fr}}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    input[type=number], select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(0,0,0,0.06);font-size:15px}
+    .actions{display:flex;gap:12px;align-items:center;margin-top:12px}
+    button.primary{background:var(--accent);color:white;padding:10px 14px;border-radius:12px;border:0;cursor:pointer;font-weight:700}
+    button.ghost{background:transparent;padding:8px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);cursor:pointer}
+    .result{padding:14px;border-radius:12px;margin-top:12px;background:linear-gradient(180deg, rgba(226,255,230,0.75), rgba(182,226,198,0.4));border:1px solid rgba(46,139,87,0.12)}
+    .crop-list{display:flex;flex-direction:column;gap:10px}
+    .crop-item{display:flex;gap:12px;align-items:center}
+    .crop-badge{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#2b6b4a);display:grid;place-items:center;color:white;font-weight:700}
+    footer{margin-top:20px;font-size:13px;color:var(--muted)}
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">MSF</div>
+        <div>
+          <div class="title">My Smart Farm</div>
+          <div class="subtitle">Enter soil & weather values — get the best crop suggestion</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center">
+        <div style="font-size:13px;color:var(--muted)">Theme</div>
+        <div class="theme-toggle" style="background:var(--glass);padding:6px;border-radius:12px;border:1px solid rgba(182,226,198,0.5)">
+          <button id="themeBtn" style="border:0;background:transparent;cursor:pointer;font-size:16px">🌙</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h3 style="margin-top:0;margin-bottom:8px">Input Parameters</h3>
+        <p style="margin-top:0;margin-bottom:16px;color:var(--muted);font-size:13px">Provide N, P, K (kg/ha or ppm relative), temperature (°C), humidity (%), pH and rainfall (mm).</p>
+
+        <div class="form-grid">
+          <div>
+            <label for="n">Nitrogen (N)</label>
+            <input type="number" id="n" step="0.1" min="0" value="90" />
+          </div>
+          <div>
+            <label for="p">Phosphorous (P)</label>
+            <input type="number" id="p" step="0.1" min="0" value="40" />
+          </div>
+
+          <div>
+            <label for="k">Potassium (K)</label>
+            <input type="number" id="k" step="0.1" min="0" value="40" />
+          </div>
+          <div>
+            <label for="temp">Temperature (°C)</label>
+            <input type="number" id="temp" step="0.1" value="28" />
+          </div>
+
+          <div>
+            <label for="hum">Humidity (%)</label>
+            <input type="number" id="hum" step="0.1" value="70" />
+          </div>
+          <div>
+            <label for="ph">Soil pH</label>
+            <input type="number" id="ph" step="0.1" value="6.5" />
+          </div>
+
+          <div style="grid-column: 1 / -1">
+            <label for="rain">Rainfall (mm / season)</label>
+            <input type="number" id="rain" step="0.1" value="800" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="predictBtn">Predict Best Crop</button>
+          <button class="ghost" id="resetBtn">Reset</button>
+        </div>
+
+        <div id="output" class="result" style="display:none"></div>
+      </section>
+    </main>
+
+    <footer>
+        &copy; 2024 My Smart Farm. Built with 🌱 for sustainable agriculture.
+    </footer>
+  </div>
+
+  <script>
+    // Theme toggle
+    const themeBtn = document.getElementById('themeBtn');
+    const body = document.body;
+    const themes = [
+      {name: 'light', icon: '🌙', label: 'Switch to dark theme'},
+      {name: 'dark', icon: '🌲', label: 'Switch to forest theme'},
+      {name: 'forest', icon: '☀️', label: 'Switch to light theme'}
+    ];
+    let stored = localStorage.getItem('msf-theme') || 'light';
+    let themeIdx = themes.findIndex(t => t.name === stored);
+    if(themeIdx === -1) themeIdx = 0;
+    function setTheme(idx) {
+      const t = themes[idx];
+      body.setAttribute('data-theme', t.name);
+      themeBtn.textContent = t.icon;
+      themeBtn.title = t.label;
+      localStorage.setItem('msf-theme', t.name);
+    }
+    setTheme(themeIdx);
+    themeBtn.addEventListener('click', ()=>{
+      themeIdx = (themeIdx + 1) % themes.length;
+      setTheme(themeIdx);
+    });
+
+    // --- Simple crop-matching logic (rule-based scoring) ---
+    // Each crop has ideal ranges. We'll compute a normalized distance score and pick the smallest distance.
+    const crops = [
+      {name:'Rice', ideal:{n:100,p:40,k:40,temp:[20,35],hum:[60,90],ph:[5.0,6.5],rain:[1000,2000]}, desc:'Prefers warm, wet paddies.'},
+      {name:'Wheat', ideal:{n:80,p:30,k:40,temp:[10,25],hum:[30,60],ph:[6.0,7.5],rain:[300,900]}, desc:'Cool-season cereal crop.'},
+      {name:'Maize', ideal:{n:90,p:50,k:60,temp:[18,35],hum:[50,80],ph:[5.5,7.5],rain:[500,1200]}, desc:'Versatile cereal, needs moderate rainfall.'},
+      {name:'Sugarcane', ideal:{n:120,p:50,k:120,temp:[20,34],hum:[60,90],ph:[6.0,8.0],rain:[1000,1800]}, desc:'Long duration, high water & nutrient demand.'},
+      {name:'Cotton', ideal:{n:60,p:50,k:60,temp:[20,35],hum:[50,70],ph:[5.8,8.0],rain:[500,1000]}, desc:'Warm season fiber crop.'},
+      {name:'Soybean', ideal:{n:20,p:40,k:40,temp:[20,30],hum:[50,80],ph:[5.5,7.0],rain:[400,800]}, desc:'Legume — fixes nitrogen; low N requirement.'},
+      {name:'Groundnut', ideal:{n:40,p:60,k:40,temp:[20,32],hum:[50,80],ph:[5.5,7.0],rain:[500,1000]}, desc:'Prefers sandy soils and warm climate.'},
+      {name:'Millet', ideal:{n:30,p:20,k:30,temp:[25,35],hum:[20,50],ph:[5.0,7.5],rain:[200,600]}, desc:'Drought-tolerant cereal.'},
+      {name:'Barley', ideal:{n:60,p:30,k:40,temp:[10,25],hum:[30,60],ph:[6.0,7.5],rain:[300,600]}, desc:'Cool-season cereal, shorter growing period.'},
+      {name:'Potato', ideal:{n:120,p:60,k:200,temp:[12,25],hum:[60,80],ph:[5.0,6.5],rain:[500,800]}, desc:'Tuber crop with high K demand.'},
+      {name:'Tea', ideal:{n:100,p:50,k:80,temp:[18,30],hum:[70,90],ph:[4.5,5.5],rain:[1500,3000]}, desc:'Requires acidic soils and heavy rainfall.'},
+      {name:'Tomato', ideal:{n:80,p:60,k:120,temp:[18,30],hum:[50,80],ph:[5.5,7.0],rain:[400,800]}, desc:'Vegetable with moderate water needs.'}
+    ];
+
+    function clamp(val, a, b){ return Math.max(a, Math.min(b, val)); }
+
+    function distanceToRange(val, range){
+      // range can be [min,max] or single number
+      if(!range) return 0;
+      if(Array.isArray(range)){
+        const [min,max] = range;
+        if(val < min) return (min - val) / (Math.abs(min) + 1);
+        if(val > max) return (val - max) / (Math.abs(max) + 1);
+        return 0; // inside ideal range
+      }
+      // numeric ideal center
+      const center = range;
+      return Math.abs(val - center) / (Math.abs(center) + 1);
+    }
+
+    function scoreCrop(inputs, crop){
+      // Lower score = better match. We'll weight some features.
+      const w = {n:1.0,p:1.0,k:1.0,temp:1.2,hum:0.9,ph:1.3,rain:1.0};
+      let s = 0;
+
+      // For N,P,K we have crop.ideal.n may be number; we'll treat as center
+      ['n','p','k'].forEach(k1 => {
+        const ideal = crop.ideal[k1];
+        const val = inputs[k1];
+        // if ideal is range object? Here it's a number; compute normalized distance
+        const center = (typeof ideal === 'number') ? ideal : (Array.isArray(ideal)? (ideal[0]+ideal[1])/2 : ideal);
+        s += w[k1] * Math.abs(val - center) / (center + 20); // +20 to soften small centers
+      });
+
+      // temp, hum, ph, rain
+      s += w.temp * distanceToRange(inputs.temp, crop.ideal.temp);
+      s += w.hum * distanceToRange(inputs.hum, crop.ideal.hum);
+      s += w.ph * distanceToRange(inputs.ph, crop.ideal.ph);
+      s += w.rain * distanceToRange(inputs.rain, crop.ideal.rain);
+
+      // small penalty for crops with very different resource needs (e.g., soy has low N)
+      return s;
+    }
+
+    function predictBestCrop(values){
+      const scored = crops.map(c => ({name:c.name, score: scoreCrop(values,c), desc: c.desc}));
+      scored.sort((a,b)=>a.score - b.score);
+      return scored;
+    }
+
+    // UI wiring
+    const predictBtn = document.getElementById('predictBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const output = document.getElementById('output');
+    const cropListEl = document.getElementById('cropList');
+
+    function readInputs(){
+      return {
+        n: parseFloat(document.getElementById('n').value) || 0,
+        p: parseFloat(document.getElementById('p').value) || 0,
+        k: parseFloat(document.getElementById('k').value) || 0,
+        temp: parseFloat(document.getElementById('temp').value) || 0,
+        hum: parseFloat(document.getElementById('hum').value) || 0,
+        ph: parseFloat(document.getElementById('ph').value) || 7.0,
+        rain: parseFloat(document.getElementById('rain').value) || 0
+      };
+    }
+
+    function showTopCrops(list){
+      cropListEl.innerHTML = '';
+      list.slice(0,6).forEach((c,i)=>{
+        const el = document.createElement('div'); el.className = 'crop-item';
+        el.innerHTML = `<div class="crop-badge">${i+1}</div><div><strong>${c.name}</strong><div style="font-size:13px;color:var(--muted)">${c.desc}</div></div>`;
+        cropListEl.appendChild(el);
+      });
+    }
+
+    function showResult(list, inputs){
+      const top = list[0];
+      const confidence = Math.max(0, 100 - Math.round(top.score * 18)); // rough confidence transform
+      output.style.display = 'block';
+      output.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-size:18px;font-weight:800">Best crop: ${top.name}</div>
+            <div style="color:var(--muted);font-size:13px;margin-top:6px">${top.desc}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:13px;color:var(--muted)">Matching confidence</div>
+            <div style="font-weight:800;font-size:20px">${confidence}%</div>
+          </div>
+        </div>
+        <hr style="margin:12px 0;border:none;border-top:1px solid rgba(0,0,0,0.06)" />
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="min-width:160px">
+            <div style="font-size:13px;color:var(--muted)">Input summary</div>
+            <div style="font-weight:700">N:${inputs.n} P:${inputs.p} K:${inputs.k}</div>
+            <div style="font-weight:700">Temp:${inputs.temp}°C Hum:${inputs.hum}%</div>
+            <div style="font-weight:700">pH:${inputs.ph} Rain:${inputs.rain}mm</div>
+          </div>
+          <div style="min-width:200px">
+            <div style="font-size:13px;color:var(--muted)">Top 3 alternatives</div>
+            <ol style="margin:6px 0 0 18px;padding:0">
+              <li>${list[0].name}</li>
+              <li>${list[1].name}</li>
+              <li>${list[2].name}</li>
+            </ol>
+          </div>
+        </div>
+      `;
+    }
+
+    predictBtn.addEventListener('click', ()=>{
+      const inputs = readInputs();
+      const ranked = predictBestCrop(inputs);
+      showTopCrops(ranked);
+      showResult(ranked, inputs);
+    });
+
+    resetBtn.addEventListener('click', ()=>{
+      document.getElementById('n').value = 90;document.getElementById('p').value = 40;document.getElementById('k').value = 40;document.getElementById('temp').value = 28;document.getElementById('hum').value = 70;document.getElementById('ph').value = 6.5;document.getElementById('rain').value = 800;
+      output.style.display = 'none'; cropListEl.innerHTML = '';
+    });
+
+    // On load: show default crop list
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const defaults = readInputs();
+      const ranked = predictBestCrop(defaults);
+      showTopCrops(ranked);
+    });
+
+  </script>
+</body>
+</html>

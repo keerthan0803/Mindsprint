@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Disease Predictor</title>
+  <style>
+    :root{
+      --bg: #f3fbf6;
+      --card: #ffffff;
+      --muted:#556b55;
+      --accent:#2e8b57;
+      --accent2: #b6e2c6;
+      --glass: rgba(255,255,255,0.7);
+      --radius:18px;
+      --shadow: 0 8px 32px rgba(30,50,30,0.10);
+      --shadow-hover: 0 16px 40px rgba(46,139,87,0.18);
+      --gradient: linear-gradient(120deg, #e0ffe6 0%, #b6e2c6 100%);
+      --gradient2: linear-gradient(90deg, #e0ffe6 0%, #f3fbf6 100%);
+      color-scheme: light;
+    }
+    [data-theme="dark"]{
+      --bg: #000000;
+      --card: #111111;
+      --muted: #b6e2c6;
+      --accent: #8fe0a2;
+      --accent2: #222;
+      --glass: rgba(20,20,20,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.32);
+      --shadow-hover: 0 16px 40px rgba(143,224,162,0.22);
+      --gradient: linear-gradient(120deg, #232323 0%, #000 100%);
+      --gradient2: linear-gradient(90deg, #232323 0%, #000 100%);
+      color-scheme: dark;
+    }
+    [data-theme="forest"]{
+      --bg: #1a2e22;
+      --card: #223c2b;
+      --muted: #d0f5e2;
+      --accent: #7ed957;
+      --accent2: #2e8b57;
+      --glass: rgba(34,60,43,0.7);
+      --shadow: 0 8px 32px rgba(46,139,87,0.22);
+      --shadow-hover: 0 16px 40px rgba(126,217,87,0.22);
+      --gradient: linear-gradient(120deg, #2e8b57 0%, #1a2e22 100%);
+      --gradient2: linear-gradient(90deg, #2e8b57 0%, #1a2e22 100%);
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: var(--gradient2), radial-gradient(1200px 600px at 10% 10%, rgba(46,139,87,0.10), transparent), linear-gradient(180deg,#f7fff6 0%,var(--bg) 100%);
+      background-attachment: fixed;
+      color:#113322;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      min-height:100vh;
+      transition:background .35s ease, color .35s ease;
+      letter-spacing: 0.01em;
+    }
+    .container{max-width:1200px;margin:0 auto;padding:0 12px;}
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      padding:16px 28px;
+      background:var(--glass);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      border: 1.5px solid #e0ffe6;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+    .logo{
+      width:56px;height:56px;border-radius:16px;display:grid;place-items:center;
+      font-weight:700;font-size:20px;
+      background:linear-gradient(135deg,var(--accent), #2b6b4a);
+      color:white;
+      box-shadow:0 8px 24px rgba(46,139,87,0.22);
+      border: 2.5px solid #b6e2c6;
+      transition: box-shadow .3s;
+    }
+    .logo:hover { box-shadow: 0 16px 40px rgba(46,139,87,0.25); }
+    .title{font-size:22px;font-weight:800;letter-spacing:0.01em;}
+    .subtitle{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0.02em;}
+    .header-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0;}
+    .lang-select, .search, .theme-toggle{
+      background:var(--glass);
+      border:1.5px solid #b6e2c6;
+      padding:8px;
+      border-radius:14px;
+      box-shadow:0 2px 8px rgba(46,139,87,0.04);
+      min-width:0;
+    }
+    .search{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding-inline:20px;
+      min-width:260px;
+      height:46px;
+      background: var(--card);
+      border-radius: 999px;
+      box-shadow: 0 2px 12px rgba(46,139,87,0.08);
+      border: 1.5px solid #b6e2c6;
+      transition: box-shadow .2s, border .2s;
+      position: relative;
+    }
+    .search:focus-within {
+      box-shadow: 0 4px 18px rgba(46,139,87,0.16);
+      border: 1.5px solid var(--accent);
+    }
+    .search svg {
+      width: 22px;
+      height: 22px;
+      color: var(--accent);
+      opacity: 0.85;
+      transition: color .2s;
+    }
+    .search:focus-within svg {
+      color: #2b6b4a;
+      opacity: 1;
+    }
+    input[type="search"]{
+      border:0;
+      background:transparent;
+      outline:none;
+      font-size:17px;
+      letter-spacing:0.01em;
+      flex:1;
+      padding: 8px 0;
+      color: #113322;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    input[type="search"]::placeholder {
+      color: var(--muted);
+      opacity: 0.7;
+      font-weight: 400;
+      font-size: 15px;
+    }
+    .theme-toggle button{border:0;background:transparent;padding:7px 10px;border-radius:10px;cursor:pointer;font-size:18px;transition:background .2s;}
+    .theme-toggle button:hover{background:var(--accent2);color:var(--accent);}
+  </style>
+  <!-- Responsive for predictor UI -->
+  <style>
+    @media (max-width: 900px) {
+      #predictor-app {
+        flex-direction: column;
+        gap: 18px !important;
+        align-items: stretch;
+        max-width: 100%;
+      }
+      .predictor-panel {
+        max-width: 100% !important;
+        min-width: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 18px 8px 18px 8px !important;
+        border-radius: 10px !important;
+      }
+      #upload-area, #results-placeholder, #results-content {
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      #upload-placeholder, #uploaded-img {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 320px !important;
+        margin: 0 auto 12px auto !important;
+      }
+    }
+    @media (max-width: 600px) {
+      #predictor-root {
+        margin-top: 18px !important;
+      }
+      #predictor-app {
+        gap: 8px !important;
+        padding: 0 !important;
+      }
+      .predictor-panel {
+        padding: 10px 2px 10px 2px !important;
+        border-radius: 6px !important;
+        font-size: 13px !important;
+      }
+      h1 {
+        font-size: 1.2rem !important;
+        margin-top: 24px !important;
+      }
+      h2 {
+        font-size: 1rem !important;
+        margin-bottom: 10px !important;
+      }
+      #upload-placeholder, #uploaded-img {
+        height: 120px !important;
+        max-width: 180px !important;
+      }
+      .predict-btn {
+        font-size: 0.9rem !important;
+        padding: 8px 0 !important;
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden><img src="/static/logo.png" alt="My Smart Farm Logo" style="width:48px;height:48px;display:block;border-radius:12px;object-fit:contain;box-shadow:0 6px 18px rgba(46,139,87,0.22)" /></div>
+        <div>
+          <div class="title">My Smart Farm</div>
+          <div class="subtitle">smart farming — soil to harvest</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="theme-toggle">
+          <button id="themeBtn" title="Toggle theme">🌙</button>
+        </div>
+      </div>
+    </header>
+    <main>
+      <h1 style="text-align:center;margin-top:48px;font-size:2.2rem;font-weight:800;letter-spacing:0.01em;">Disease Predictor</h1>
+      <div id="predictor-root" style="display:flex;justify-content:center;margin-top:32px;">
+        <div id="predictor-app" style="width:100%;max-width:1200px;display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start;">
+          <!-- Upload Panel -->
+          <div id="upload-panel" style="flex:1 1 340px;min-width:320px;max-width:480px;background:#fff;border-radius:16px;box-shadow:0 4px 32px rgba(30,50,30,0.08);padding:32px 24px 32px 24px;margin-bottom:24px;">
+            <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:18px;">Upload Plant Image</h2>
+            <div id="upload-area" style="display:flex;flex-direction:column;align-items:center;">
+              <!-- BEFORE UPLOAD: -->
+              <div id="upload-placeholder" style="width:260px;height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed #8a9cf7;border-radius:12px;background:#f8faff;margin-bottom:18px;">
+                <svg width="48" height="48" fill="none" viewBox="0 0 24 24" style="margin-bottom:8px;"><path d="M12 17V7M12 7l-4 4m4-4l4 4" stroke="#7b8df7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="17" width="18" height="2" rx="1" fill="#7b8df7"/></svg>
+                <div style="color:#7b8df7;font-weight:600;">Drag and drop your image here</div>
+                <div style="color:#888;font-size:13px;margin-top:2px;">or click to browse</div>
+              </div>
+              <!-- AFTER UPLOAD: (Uncomment to show after upload)
+              <div id="uploaded-img" style="width:180px;height:180px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;">
+                <img src="leaf-demo.jpg" alt="Uploaded Leaf" style="width:180px;height:180px;object-fit:cover;border-radius:12px;box-shadow:0 2px 12px rgba(30,50,30,0.10);" />
+              </div>
+              <button style="margin-bottom:18px;padding:6px 18px;border-radius:8px;border:1px solid #eee;background:#fafafa;cursor:pointer;font-weight:500;">Clear</button>
+              -->
+              <button class="predict-btn" style="width:100%;margin-top:8px;padding:12px 0;border-radius:8px;background:linear-gradient(90deg,#7b8df7,#7f53f7);color:#fff;font-weight:600;font-size:1rem;border:none;box-shadow:0 2px 8px rgba(123,141,247,0.10);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Predict Disease
+              </button>
+            </div>
+          </div>
+          <!-- Results Panel -->
+          <div id="results-panel" style="flex:1 1 340px;min-width:320px;max-width:480px;background:#fff;border-radius:16px;box-shadow:0 4px 32px rgba(30,50,30,0.08);padding:32px 24px 32px 24px;margin-bottom:24px;">
+            <h2 style="font-size:1.3rem;font-weight:700;margin-bottom:18px;">Prediction Results</h2>
+            <!-- BEFORE UPLOAD: -->
+            <div id="results-placeholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;">
+              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" style="margin-bottom:8px;"><circle cx="12" cy="12" r="10" fill="#f3f4fa"/><text x="12" y="17" text-anchor="middle" font-size="32" fill="#bbb">i</text></svg>
+              <div style="color:#888;font-size:15px;">Upload an image to see predictions</div>
+            </div>
+            <!-- AFTER UPLOAD: (Uncomment to show after upload)
+            <div id="results-content">
+              <div style="margin-bottom:10px;"><b>Plant Type:</b> <span style="background:#f3f4fa;padding:4px 12px;border-radius:6px;font-weight:600;">Apple</span></div>
+              <div style="margin-bottom:10px;"><b>Disease Status:</b> <span style="background:#ffeaea;color:#b33b3b;padding:4px 12px;border-radius:6px;font-weight:600;">Apple scab</span></div>
+              <div style="margin-bottom:10px;"><b>Confidence:</b>
+                <div style="background:#f3f4fa;border-radius:8px;height:18px;width:100%;margin-top:4px;position:relative;">
+                  <div style="background:linear-gradient(90deg,#7b8df7,#7f53f7);height:100%;border-radius:8px;width:98.16%;position:absolute;"></div>
+                  <span style="position:absolute;right:8px;top:0;font-size:13px;color:#333;font-weight:600;">98.16%</span>
+                </div>
+              </div>
+              <div style="margin-bottom:10px;"><b>Top Predictions:</b>
+                <div style="margin-top:6px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;background:#f3f4fa;padding:6px 10px;border-radius:6px;margin-bottom:4px;font-size:14px;"><span>1. Apple__Apple_scab</span><span style="background:#7b8df7;color:#fff;padding:2px 10px;border-radius:6px;font-size:13px;">98.16%</span></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;background:#f3f4fa;padding:6px 10px;border-radius:6px;margin-bottom:4px;font-size:14px;"><span>2. Apple__Cedar_apple_rust</span><span style="background:#e0e7ff;color:#333;padding:2px 10px;border-radius:6px;font-size:13px;">1.08%</span></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;background:#f3f4fa;padding:6px 10px;border-radius:6px;margin-bottom:4px;font-size:14px;"><span>3. Peach__Bacterial_spot</span><span style="background:#e0e7ff;color:#333;padding:2px 10px;border-radius:6px;font-size:13px;">0.45%</span></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;background:#f3f4fa;padding:6px 10px;border-radius:6px;margin-bottom:4px;font-size:14px;"><span>4. Potato__Late_blight</span><span style="background:#e0e7ff;color:#333;padding:2px 10px;border-radius:6px;font-size:13px;">0.14%</span></div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;background:#f3f4fa;padding:6px 10px;border-radius:6px;margin-bottom:4px;font-size:14px;"><span>5. Apple__healthy</span><span style="background:#e0e7ff;color:#333;padding:2px 10px;border-radius:6px;font-size:13px;">0.07%</span></div>
+                </div>
+              </div>
+            </div>
+            -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    // Theme toggle
+    const themeBtn = document.getElementById('themeBtn');
+    const body = document.body;
+    const themes = [
+      {name: 'light', icon: '🌙', label: 'Switch to dark theme'},
+      {name: 'dark', icon: '🌲', label: 'Switch to forest theme'},
+      {name: 'forest', icon: '☀', label: 'Switch to light theme'}
+    ];
+    let stored = localStorage.getItem('msf-theme') || 'light';
+    let themeIdx = themes.findIndex(t => t.name === stored);
+    if(themeIdx === -1) themeIdx = 0;
+    function setTheme(idx) {
+      const t = themes[idx];
+      body.setAttribute('data-theme', t.name);
+      themeBtn.textContent = t.icon;
+      themeBtn.title = t.label;
+      localStorage.setItem('msf-theme', t.name);
+    }
+    setTheme(themeIdx);
+    themeBtn.addEventListener('click', ()=>{
+      themeIdx = (themeIdx + 1) % themes.length;
+      setTheme(themeIdx);
+    });
+
+    // Disease Prediction Logic
+    let selectedFile = null;
+    const uploadArea = document.getElementById('upload-placeholder');
+    const predictBtn = document.querySelector('.predict-btn');
+    const resultsPlaceholder = document.getElementById('results-placeholder');
+    
+    // Create file input
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/png, image/jpeg, image/jpg';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+
+    // Click to upload
+    uploadArea.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = '#2e8b57';
+      uploadArea.style.background = '#e0ffe6';
+    });
+
+    uploadArea.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = '#8a9cf7';
+      uploadArea.style.background = '#f8faff';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = '#8a9cf7';
+      uploadArea.style.background = '#f8faff';
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFileSelect(files[0]);
+      }
+    });
+
+    // File selection handler
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFileSelect(e.target.files[0]);
+      }
+    });
+
+    function handleFileSelect(file) {
+      if (!file.type.match('image.*')) {
+        alert('Please select an image file');
+        return;
+      }
+      selectedFile = file;
+      
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        uploadArea.innerHTML = `
+          <img src="${e.target.result}" alt="Uploaded Leaf" style="width:100%;height:100%;object-fit:cover;border-radius:12px;" />
+        `;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Predict button handler
+    predictBtn.addEventListener('click', async () => {
+      if (!selectedFile) {
+        alert('Please select an image first');
+        return;
+      }
+
+      // Show loading state
+      predictBtn.disabled = true;
+      predictBtn.innerHTML = `
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;">
+          <circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="2" fill="none" stroke-dasharray="60" stroke-dashoffset="0"/>
+        </svg>
+        Analyzing...
+      `;
+      resultsPlaceholder.innerHTML = '<div style="color:#888;font-size:15px;">Processing image...</div>';
+
+      // Prepare form data
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+
+      try {
+        // Call API
+        const response = await fetch('/api/predict', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          displayResults(data);
+        } else {
+          throw new Error(data.error || 'Prediction failed');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        resultsPlaceholder.innerHTML = `
+          <div style="color:#b33b3b;font-size:15px;text-align:center;">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" style="margin-bottom:8px;">
+              <circle cx="12" cy="12" r="10" stroke="#b33b3b" stroke-width="2" fill="none"/>
+              <path d="M12 8v4m0 4h.01" stroke="#b33b3b" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <div>Error: ${error.message}</div>
+          </div>
+        `;
+      } finally {
+        // Reset button
+        predictBtn.disabled = false;
+        predictBtn.innerHTML = `
+          <svg width="18" height="18" fill="none" viewBox="0 0 24 24">
+            <path d="M12 19V5M5 12l7-7 7 7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Predict Disease
+        `;
+      }
+    });
+
+    function displayResults(data) {
+      const plant = data.plant || 'Unknown';
+      const disease = data.disease || 'Unknown';
+
+      resultsPlaceholder.innerHTML = `
+        <div id="results-content">
+          <div style="margin-bottom:10px;"><b>Plant Type:</b> <span style="background:#f3f4fa;padding:4px 12px;border-radius:6px;font-weight:600;">${plant}</span></div>
+          <div style="margin-bottom:10px;"><b>Disease Status:</b> <span style="background:${disease.toLowerCase().includes('healthy') ? '#e6ffe6' : '#ffeaea'};color:${disease.toLowerCase().includes('healthy') ? '#2e8b57' : '#b33b3b'};padding:4px 12px;border-radius:6px;font-weight:600;">${disease}</span></div>
+        </div>
+      `;
+    }
+
+    // Add CSS for loading animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

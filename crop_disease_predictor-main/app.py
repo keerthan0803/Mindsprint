@@ -19,6 +19,25 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Load Crop Recommendation Model
+CROP_MODEL = None
+CROP_SCALER = None
+try:
+    # Try ensemble model first, then fall back to regular model
+    model_files = ['ensemble_crop_model.pkl', 'crop_recommendation_model.pkl']
+    for model_file in model_files:
+        if os.path.exists(model_file):
+            with open(model_file, 'rb') as f:
+                crop_data = pickle.load(f)
+                CROP_MODEL = crop_data['model']
+                CROP_SCALER = crop_data['scaler']
+            print(f'Crop recommendation model loaded from {model_file}')
+            break
+    if CROP_MODEL is None:
+        print('Warning: No crop recommendation model found')
+except Exception as e:
+    print(f'Error loading crop model: {str(e)}')
+
 # Helpers for fallbacks
 def _default_disease_info(class_names):
     """Build a basic mapping from class label to plant/disease text."""
@@ -94,6 +113,14 @@ def predict_disease(image_path):
 def index():
     return render_template('index.html')
 
+@app.route('/disease predictor.html')
+def disease_predictor():
+    return render_template('disease predictor.html')
+
+@app.route('/crop.html')
+def crop_recommendation():
+    return render_template('crop.html')
+
 @app.route('/api/predict', methods=['POST'])
 def api_predict():
     if not MODEL_LOADED:
@@ -129,12 +156,71 @@ def api_predict():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/crop-predict', methods=['POST'])
+def crop_predict():
+    if CROP_MODEL is None:
+        return jsonify({'error': 'Crop recommendation model not loaded'}), 500
+    
+    try:
+        data = request.get_json()
+        
+        # Extract features
+        N = float(data.get('N', 0))
+        P = float(data.get('P', 0))
+        K = float(data.get('K', 0))
+        temperature = float(data.get('temperature', 0))
+        humidity = float(data.get('humidity', 0))
+        ph = float(data.get('ph', 0))
+        rainfall = float(data.get('rainfall', 0))
+        
+        # Prepare input
+        features = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
+        
+        # Scale features
+        features_scaled = CROP_SCALER.transform(features)
+        
+        # Predict
+        prediction = CROP_MODEL.predict(features_scaled)[0]
+        
+        # Get prediction probabilities if available
+        if hasattr(CROP_MODEL, 'predict_proba'):
+            probabilities = CROP_MODEL.predict_proba(features_scaled)[0]
+            # Get top 5 predictions
+            top_indices = np.argsort(probabilities)[-5:][::-1]
+            top_crops = []
+            for idx in top_indices:
+                crop_name = CROP_MODEL.classes_[idx]
+                probability = float(probabilities[idx])
+                top_crops.append({
+                    'crop': crop_name,
+                    'probability': probability,
+                    'confidence': probability * 100
+                })
+        else:
+            top_crops = [{'crop': prediction, 'probability': 1.0, 'confidence': 100.0}]
+        
+        return jsonify({
+            'recommended_crop': prediction,
+            'top_predictions': top_crops,
+            'input_values': {
+                'N': N, 'P': P, 'K': K,
+                'temperature': temperature,
+                'humidity': humidity,
+                'ph': ph,
+                'rainfall': rainfall
+            }
+        })
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/model-status', methods=['GET'])
 def model_status():
     return jsonify({
         'loaded': MODEL_LOADED,
         'classes': len(CLASS_NAMES) if MODEL_LOADED else 0,
-        'total_diseases': len(CLASS_NAMES) if MODEL_LOADED else 0
+        'total_diseases': len(CLASS_NAMES) if MODEL_LOADED else 0,
+        'crop_model_loaded': CROP_MODEL is not None
     })
 
 if __name__ == '__main__':
