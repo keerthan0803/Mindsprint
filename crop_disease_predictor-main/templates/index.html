@@ -455,10 +455,6 @@
         </div>
       </div>
       <div class="header-actions">
-        <div class="search" role="search">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden focusable="false"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <input type="search" id="q" placeholder="Search features, crops..." aria-label="Search features, crops" autocomplete="off" />
-        </div>
         <div class="lang-select">
           <label for="lang" style="font-weight:600;margin-right:8px">Lang</label>
           <select id="lang">
@@ -490,15 +486,19 @@
       </section>
 
       <section id="crop-prices" style="margin-top:18px">
-        <h2 style="margin:6px 0 12px 4px">Crop Prices</h2>
+        <h2 style="margin:6px 0 12px 4px">Services</h2>
+        <div class="search" role="search" style="margin: 0 4px 16px 4px; max-width: 400px;">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden focusable="false"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input type="search" id="q" placeholder="Search features, crops..." aria-label="Search features, crops" autocomplete="off" />
+        </div>
         <div class="services">
-          <!-- Soil Analysis -->
+          <!-- Yield Predictor -->
           <article class="service tilt">
             <div class="img" style="background-image:url('../static/soil-testing-jpeg.webp')" aria-hidden></div>
             <div class="body">
-              <h3>Soil Analysis</h3>
-              <p>Provide N, P, K, pH and (optionally) temperature & moisture. Get a soil quality score, missing nutrients and a downloadable soil report.</p>
-              <div class="actions"><button class="btn btn-accent" onclick="alert('Open Soil Analysis page (placeholder)')">Open Soil Analysis</button></div>
+              <h3>Yield Predictor</h3>
+              <p>Enter crop details, state, season, and area to predict expected crop yield using AI. Get accurate production estimates for better planning.</p>
+              <div class="actions"><button class="btn btn-accent" onclick="window.location.href='yeild'">Open Yield Predictor</button></div>
             </div>
           </article>
 
@@ -603,10 +603,10 @@
         intro: 'One-stop platform for soil analysis, crop recommendation, fertilizer planning and leaf-disease detection using AI — designed for farmers, students and agritech developers.',
         calBtn: '📅 Open Calendar',
         exploreBtn: 'View Crop Prices',
-        services: 'Crop Prices',
-        soil: 'Soil Analysis',
-        soilDesc: 'Provide N, P, K, pH and (optionally) temperature & moisture. Get a soil quality score, missing nutrients and a downloadable soil report.',
-        soilBtn: 'Open Soil Analysis',
+        services: 'Services',
+        soil: 'Yield Predictor',
+        soilDesc: 'Enter crop details, state, season, and area to predict expected crop yield using AI. Get accurate production estimates for better planning.',
+        soilBtn: 'Open Yield Predictor',
         crop: 'Crop Recommendation',
         cropDesc: 'AI model suggests the top 4 crops best suited to your soil and location, along with expected risk and estimated profit.',
         cropBtn: 'Recommend Crops',
@@ -767,12 +767,27 @@
       card.addEventListener('pointerleave', ()=>{card.style.transform='none'});
     });
 
-    // Simple search (client-side demo)
-    document.getElementById('q').addEventListener('keydown', e=>{
-      if(e.key === 'Enter'){
-        const v = e.target.value.toLowerCase();
-        alert('Searching for: '+v+' (demo)');
-      }
+    // Real search functionality - search by service titles only
+    const searchInput = document.getElementById('q');
+    const serviceCards = document.querySelectorAll('.service');
+    
+    searchInput.addEventListener('input', e=>{
+      const searchTerm = e.target.value.toLowerCase();
+      let foundMatch = false;
+      
+      serviceCards.forEach(card=>{
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        
+        if(searchTerm === '' || title.includes(searchTerm)){
+          card.style.display = '';
+          if(searchTerm !== '' && title.includes(searchTerm) && !foundMatch){
+            foundMatch = true;
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else {
+          card.style.display = 'none';
+        }
+      });
     });
   </script>
 </body>

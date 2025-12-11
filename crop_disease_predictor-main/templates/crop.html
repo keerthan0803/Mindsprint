@@ -72,7 +72,7 @@
     .subtitle{font-size:12px;color:var(--muted)}
     main{display:grid;grid-template-columns: 1fr;gap:20px;align-items:start}
     @media (max-width:980px){main{grid-template-columns:1fr}}
-    .card{background:var(--card);border-radius:18px;padding:18px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,0.04)}
+    .card{background:var(--card);border-radius:18px;padding:18px;box-shadow:var(--shadow);border:1px solid rgba(0,0,0,0.04);position:relative}
     .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
     @media (max-width:520px){.form-grid{grid-template-columns:1fr}}
     label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
@@ -85,13 +85,16 @@
     .crop-item{display:flex;gap:12px;align-items:center}
     .crop-badge{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#2b6b4a);display:grid;place-items:center;color:white;font-weight:700}
     footer{margin-top:20px;font-size:13px;color:var(--muted)}
+    .back-btn{position:absolute;bottom:18px;right:18px;background:var(--card);color:var(--accent);padding:10px 18px;border-radius:50px;border:2px solid var(--accent);cursor:pointer;font-weight:600;font-size:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;transition:all 0.2s ease;z-index:10}
+    .back-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover);background:var(--accent);color:var(--card)}
+    .back-btn:active{transform:translateY(0)}
   </style>
 </head>
 <body data-theme="light">
   <div class="container">
     <header>
       <div class="brand">
-        <div class="logo">MSF</div>
+        <div class="logo"><img src="/static/logo.png" alt="MSF" style="width:100%;height:100%;object-fit:cover;border-radius:12px;" /></div>
         <div>
           <div class="title">My Smart Farm</div>
           <div class="subtitle">Enter soil & weather values — get the best crop suggestion</div>
@@ -112,40 +115,40 @@
 
     <main>
       <section class="card">
-        <h3 style="margin-top:0;margin-bottom:8px">Input Parameters</h3>
+        <h3 style="margin-top:0;margin-bottom:8px">Crop Recommendation</h3>
         <p style="margin-top:0;margin-bottom:16px;color:var(--muted);font-size:13px">Provide N, P, K (kg/ha or ppm relative), temperature (°C), humidity (%), pH and rainfall (mm).</p>
 
         <div class="form-grid">
           <div>
             <label for="n">Nitrogen (N)</label>
-            <input type="number" id="n" step="0.1" min="0" value="90" />
+            <input type="number" id="n" step="0.1" min="0" placeholder="eg: 90" />
           </div>
           <div>
             <label for="p">Phosphorous (P)</label>
-            <input type="number" id="p" step="0.1" min="0" value="40" />
+            <input type="number" id="p" step="0.1" min="0" placeholder="eg: 40" />
           </div>
 
           <div>
             <label for="k">Potassium (K)</label>
-            <input type="number" id="k" step="0.1" min="0" value="40" />
+            <input type="number" id="k" step="0.1" min="0" placeholder="eg: 40" />
           </div>
           <div>
             <label for="temp">Temperature (°C)</label>
-            <input type="number" id="temp" step="0.1" value="28" />
+            <input type="number" id="temp" step="0.1" placeholder="eg: 28" />
           </div>
 
           <div>
             <label for="hum">Humidity (%)</label>
-            <input type="number" id="hum" step="0.1" value="70" />
+            <input type="number" id="hum" step="0.1" placeholder="eg: 70" />
           </div>
           <div>
             <label for="ph">Soil pH</label>
-            <input type="number" id="ph" step="0.1" value="6.5" />
+            <input type="number" id="ph" step="0.1" placeholder="eg: 6.5" />
           </div>
 
           <div style="grid-column: 1 / -1">
             <label for="rain">Rainfall (mm / season)</label>
-            <input type="number" id="rain" step="0.1" value="800" />
+            <input type="number" id="rain" step="0.1" placeholder="eg: 800" />
           </div>
         </div>
 
@@ -155,6 +158,11 @@
         </div>
 
         <div id="output" class="result" style="display:none"></div>
+        
+        <button class="back-btn" id="backBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back
+        </button>
       </section>
     </main>
 
@@ -170,7 +178,7 @@
         title: 'My Smart Farm',
         subtitle: 'Enter soil & weather values — get the best crop suggestion',
         theme: 'Theme',
-        inputParams: 'Input Parameters',
+        inputParams: 'Crop Recommendation',
         paramDesc: 'Provide N, P, K (kg/ha or ppm relative), temperature (°C), humidity (%), pH and rainfall (mm).',
         nitrogen: 'Nitrogen (N)',
         phosphorous: 'Phosphorous (P)',
@@ -452,6 +460,11 @@
     resetBtn.addEventListener('click', ()=>{
       document.getElementById('n').value = 90;document.getElementById('p').value = 40;document.getElementById('k').value = 40;document.getElementById('temp').value = 28;document.getElementById('hum').value = 70;document.getElementById('ph').value = 6.5;document.getElementById('rain').value = 800;
       output.style.display = 'none';
+    });
+
+    // Back button functionality
+    document.getElementById('backBtn').addEventListener('click', ()=>{
+      window.location.href = '/';
     });
 
   </script>
