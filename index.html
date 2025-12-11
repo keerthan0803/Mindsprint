@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Smart Farm</title>
+  <style>
+    :root{
+      --bg: #f3fbf6;
+      --card: #ffffff;
+      --muted:#556b55;
+      --accent:#2e8b57;
+      --accent2: #b6e2c6;
+      --glass: rgba(255,255,255,0.7);
+      --radius:18px;
+      --shadow: 0 8px 32px rgba(30,50,30,0.10);
+      --shadow-hover: 0 16px 40px rgba(46,139,87,0.18);
+      --gradient: linear-gradient(120deg, #e0ffe6 0%, #b6e2c6 100%);
+      --gradient2: linear-gradient(90deg, #e0ffe6 0%, #f3fbf6 100%);
+      color-scheme: light;
+    }
+    [data-theme="dark"]{
+      --bg: #000000;
+      --card: #111111;
+      --muted: #b6e2c6;
+      --accent: #8fe0a2;
+      --accent2: #222;
+      --glass: rgba(20,20,20,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.32);
+      --shadow-hover: 0 16px 40px rgba(143,224,162,0.22);
+      --gradient: linear-gradient(120deg, #232323 0%, #000 100%);
+      --gradient2: linear-gradient(90deg, #232323 0%, #000 100%);
+      color-scheme: dark;
+    }
+
+    [data-theme="forest"]{
+      --bg: #1a2e22;
+      --card: #223c2b;
+      --muted: #d0f5e2;
+      --accent: #7ed957;
+      --accent2: #2e8b57;
+      --glass: rgba(34,60,43,0.7);
+      --shadow: 0 8px 32px rgba(46,139,87,0.22);
+      --shadow-hover: 0 16px 40px rgba(126,217,87,0.22);
+      --gradient: linear-gradient(120deg, #2e8b57 0%, #1a2e22 100%);
+      --gradient2: linear-gradient(90deg, #2e8b57 0%, #1a2e22 100%);
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: var(--gradient2), radial-gradient(1200px 600px at 10% 10%, rgba(46,139,87,0.10), transparent), linear-gradient(180deg,#f7fff6 0%,var(--bg) 100%);
+      background-attachment: fixed;
+      color:#113322;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      min-height:100vh;
+      transition:background .35s ease, color .35s ease;
+      letter-spacing: 0.01em;
+    }
+    .container{
+      max-width:1200px;
+      margin:0 auto;
+      padding:0 12px;
+    }
+
+    /* Header */
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:16px 28px;
+      background:var(--glass);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      border: 1.5px solid #e0ffe6;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+    .logo{
+      width:56px;height:56px;border-radius:16px;display:grid;place-items:center;
+      font-weight:700;font-size:20px;
+      background:linear-gradient(135deg,var(--accent), #2b6b4a);
+      color:white;
+      box-shadow:0 8px 24px rgba(46,139,87,0.22);
+      border: 2.5px solid #b6e2c6;
+      transition: box-shadow .3s;
+    }
+    .logo:hover {
+      box-shadow: 0 16px 40px rgba(46,139,87,0.25);
+    }
+    .title{font-size:22px;font-weight:800;letter-spacing:0.01em;}
+    .subtitle{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0.02em;}
+
+    /* Headings - default color */
+    h1, h2, h3, .title, .feature strong, .features h3 {
+      color: #204020;
+      /* fallback for light mode */
+    }
+
+    [data-theme="dark"] h1,
+    [data-theme="dark"] h2,
+    [data-theme="dark"] h3,
+    [data-theme="dark"] .title,
+    [data-theme="dark"] .feature strong,
+    [data-theme="dark"] .features h3 {
+      color: #f3fff6 !important;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    [data-theme="forest"] h1,
+    [data-theme="forest"] h2,
+    [data-theme="forest"] h3,
+    [data-theme="forest"] .title,
+    [data-theme="forest"] .feature strong,
+    [data-theme="forest"] .features h3 {
+      color: #eaffea !important;
+      text-shadow: 0 2px 8px rgba(30,50,30,0.10);
+    }
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+    .lang-select, .search, .theme-toggle{
+      background:var(--glass);
+      border:1.5px solid #b6e2c6;
+      padding:8px;
+      border-radius:14px;
+      box-shadow:0 2px 8px rgba(46,139,87,0.04);
+      min-width:0;
+    }
+    .search{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding-inline:20px;
+      min-width:260px;
+      height:46px;
+      background: var(--card);
+      border-radius: 999px;
+      box-shadow: 0 2px 12px rgba(46,139,87,0.08);
+      border: 1.5px solid #b6e2c6;
+      transition: box-shadow .2s, border .2s;
+      position: relative;
+    }
+    .search:focus-within {
+      box-shadow: 0 4px 18px rgba(46,139,87,0.16);
+      border: 1.5px solid var(--accent);
+    }
+    .search svg {
+      width: 22px;
+      height: 22px;
+      color: var(--accent);
+      opacity: 0.85;
+      transition: color .2s;
+    }
+    .search:focus-within svg {
+      color: #2b6b4a;
+      opacity: 1;
+    }
+    input[type="search"]{
+      border:0;
+      background:transparent;
+      outline:none;
+      font-size:17px;
+      letter-spacing:0.01em;
+      flex:1;
+      padding: 8px 0;
+      color: #113322;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    input[type="search"]::placeholder {
+      color: var(--muted);
+      opacity: 0.7;
+      font-weight: 400;
+      font-size: 15px;
+    }
+    .theme-toggle button{border:0;background:transparent;padding:7px 10px;border-radius:10px;cursor:pointer;font-size:18px;transition:background .2s;}
+    .theme-toggle button:hover{background:var(--accent2);color:var(--accent);}
+
+    /* Main Intro */
+    .hero{
+      display:flex;
+      gap:28px;
+      align-items:flex-start;
+      margin-top:28px;
+      flex-wrap:wrap;
+    }
+    .hero .left{flex:1;min-width:0;}
+    .hero .card{
+      background:var(--card);
+      padding:28px 24px 22px 24px;
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      transition:transform .45s cubic-bezier(.2,.9,.2,1), box-shadow .3s;
+      border: 1.5px solid #b6e2c6;
+    }
+    .hero .card:hover{transform:translateY(-8px) scale(1.02);box-shadow:var(--shadow-hover);}
+    .intro h1{margin:0;font-size:32px;font-weight:900;letter-spacing:0.01em;}
+    .intro p{color:var(--muted);line-height:1.6;font-size:16px;margin-top:8px;}
+    .controls{
+      display:flex;
+      gap:16px;
+      margin-top:18px;
+      flex-wrap:wrap;
+      min-width:0;
+    }
+    .btn{
+      padding:12px 20px;
+      border-radius:14px;
+      border:0;
+      cursor:pointer;
+      font-weight:700;
+      font-size:15px;
+      box-shadow:0 2px 8px rgba(46,139,87,0.08);
+      transition:background .2s, box-shadow .2s, color .2s;
+    }
+    .btn-accent{
+      background:linear-gradient(90deg,var(--accent),#2b6b4a);
+      color:white;
+      border: 1.5px solid #b6e2c6;
+    }
+    .btn-accent:hover{
+      background:linear-gradient(90deg,#2b6b4a,var(--accent));
+      color:#e0ffe6;
+      box-shadow:0 4px 16px rgba(46,139,87,0.18);
+    }
+    .btn-ghost{
+      background:transparent;
+      border:1.5px solid #b6e2c6;
+      color:var(--accent);
+    }
+    .btn-ghost:hover{
+      background:var(--accent2);
+      color:#113322;
+    }
+
+    /* Services */
+    .services{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:24px;
+      margin-top:32px;
+      width:100%;
+    }
+    .service{
+      display:flex;
+      gap:20px;
+      align-items:center;
+      padding:20px 18px;
+      border-radius:20px;
+      background:var(--glass);
+      box-shadow:var(--shadow);
+      transition:transform .28s,box-shadow .28s;
+      border: 1.5px solid #b6e2c6;
+      position:relative;
+      overflow:hidden;
+      min-width:0;
+      flex-wrap:wrap;
+    }
+    .service:before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg,rgba(46,139,87,0.04) 0%,rgba(182,226,198,0.08) 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .service:hover{
+      transform:translateY(-10px) scale(1.015);
+      box-shadow:var(--shadow-hover);
+    }
+    .service .img{
+      flex:0 0 150px;
+      height:110px;
+      border-radius:14px;
+      background-size:cover;
+      background-position:center;
+      box-shadow:inset 0 -20px 30px rgba(0,0,0,0.08);
+      border: 1.5px solid #b6e2c6;
+      z-index: 1;
+    }
+    .service .body{flex:1;z-index:1;}
+    .service h3{margin:0 0 8px 0;font-size:20px;font-weight:800;letter-spacing:0.01em;}
+    .service p{margin:0;color:var(--muted);font-size:15px;line-height:1.5;}
+    .service .actions{margin-top:12px}
+
+    /* Features / Contact */
+    .features{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      margin-top:32px;
+      padding:24px 18px 18px 18px;
+      border-radius:18px;
+      background:var(--glass);
+      box-shadow:var(--shadow);
+      border: 1.5px solid #b6e2c6;
+      min-width:0;
+    }
+    .features h3{
+      font-size:22px;
+      font-weight:800;
+      margin-bottom:8px;
+      letter-spacing:0.01em;
+    }
+    .feature-list{
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 22px;
+      justify-content: space-between;
+    }
+    .feature{
+      flex: 1 1 200px;
+      min-width: 200px;
+      max-width: 270px;
+      padding: 20px 16px 16px 16px;
+      border-radius: 16px;
+      background: var(--card);
+      box-shadow: 0 8px 24px rgba(10,30,10,0.08);
+      font-weight: 700;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      border: 1.5px solid #b6e2c6;
+      transition: box-shadow .2s, transform .2s;
+      position:relative;
+      overflow:hidden;
+    }
+    .feature:before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg,rgba(46,139,87,0.03) 0%,rgba(182,226,198,0.07) 100%);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .feature strong, .feature > strong {
+      position:relative;
+      z-index:1;
+      font-size:17px;
+      font-weight:800;
+      color:var(--accent);
+      margin-bottom:4px;
+    }
+    .feature div {
+      position:relative;
+      z-index:1;
+    }
+    .feature:hover{
+      box-shadow:0 16px 40px rgba(46,139,87,0.18);
+      transform:translateY(-4px) scale(1.01);
+    }
+    @media (max-width: 900px) {
+      .feature-list {
+        flex-direction: column;
+        gap: 16px;
+      }
+      .feature {
+        max-width: 100%;
+      }
+    }
+
+    /* .follow, .social, .social a { removed } */
+
+    footer{
+      margin-top:38px;
+      padding:18px 24px;
+      border-radius:16px;
+      background:var(--glass);
+      color:var(--muted);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border: 1.5px solid #b6e2c6;
+      box-shadow:0 2px 8px rgba(46,139,87,0.04);
+      font-size:15px;
+    }
+
+    /* Responsive */
+    @media (max-width:1100px){
+      .container{padding:0 4px;}
+      .services{gap:14px;}
+      .features{padding:18px 6px 10px 6px;}
+      .hero{gap:12px;}
+    }
+    @media (max-width:900px){
+      .services{grid-template-columns:1fr;gap:12px;}
+      .hero{flex-direction:column;gap:10px;}
+      .logo{width:48px;height:48px}
+      .search{min-width:120px}
+      header{padding:10px 6px;flex-direction:column;gap:10px;}
+      .features{padding:14px 6px 10px 6px;}
+      footer{padding:12px 8px;flex-direction:column;gap:8px;}
+      .header-actions{gap:8px;}
+    }
+    @media (max-width:600px){
+      .container{padding:0 2px;}
+      header{padding:6px 2px;border-radius:16px;}
+      .brand{gap:6px;}
+      .logo{width:38px;height:38px;}
+      .title{font-size:16px;}
+      .subtitle{font-size:10px;}
+      .header-actions{gap:4px;}
+      .search{padding-inline:8px;height:36px;}
+      .lang-select, .theme-toggle{padding:4px 6px;}
+      .hero .card{padding:14px 6px 10px 6px;border-radius:12px;}
+      .intro h1{font-size:18px;}
+      .intro p{font-size:12px;}
+      .btn{padding:8px 10px;font-size:12px;}
+      .services{gap:8px;}
+      .service{padding:10px 4px;border-radius:10px;gap:8px;}
+      .service .img{flex:0 0 80px;height:60px;border-radius:8px;}
+      .service h3{font-size:13px;}
+      .service p{font-size:11px;}
+      .service .actions{margin-top:6px;}
+      .features{padding:8px 2px 6px 2px;border-radius:10px;}
+      .features h3{font-size:14px;}
+      .feature-list{gap:8px;}
+      .feature{padding:10px 6px 8px 6px;border-radius:8px;max-width:100%;min-width:0;}
+      .feature strong{font-size:12px;}
+      .feature div{font-size:10px;}
+      footer{padding:8px 2px;font-size:11px;border-radius:8px;}
+    }
+
+    /* small animations */
+    .tilt{transform-style:preserve-3d}
+    .pop{animation:popIn .6s cubic-bezier(.2,.9,.2,1)}
+    @keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden><img src="logo.png" alt="My Smart Farm Logo" style="width:48px;height:48px;display:block;border-radius:12px;object-fit:contain;box-shadow:0 6px 18px rgba(46,139,87,0.22)" /></div>
+        <div>
+          <div class="title">My Smart Farm</div>
+          <div class="subtitle">smart farming — soil to harvest</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="search" role="search">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden focusable="false"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input type="search" id="q" placeholder="Search features, crops..." aria-label="Search features, crops" autocomplete="off" />
+        </div>
+        <div class="lang-select">
+          <label for="lang" style="font-weight:600;margin-right:8px">Lang</label>
+          <select id="lang">
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="te">Telugu</option>
+          </select>
+        </div>
+        <div class="theme-toggle">
+          <button id="themeBtn" title="Toggle theme">🌙</button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="left">
+          <div class="card pop">
+            <div class="intro">
+              <h1>Welcome to My Smart Farm</h1>
+              <p>One-stop platform for soil analysis, crop recommendation, fertilizer planning and leaf-disease detection using AI — designed for farmers, students and agritech developers.</p>
+            </div>
+            <div class="controls">
+              <button class="btn btn-accent" id="calBtn">📅 Open Calendar</button>
+              <button class="btn btn-ghost" onclick="location.href='#services'">Explore Services</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="services" style="margin-top:18px">
+        <h2 style="margin:6px 0 12px 4px">Our Services</h2>
+        <div class="services">
+          <!-- Soil Analysis -->
+          <article class="service tilt">
+            <div class="img" style="background-image:url('soil-testing-jpeg.webp')" aria-hidden></div>
+            <div class="body">
+              <h3>Soil Analysis</h3>
+              <p>Provide N, P, K, pH and (optionally) temperature & moisture. Get a soil quality score, missing nutrients and a downloadable soil report.</p>
+              <div class="actions"><button class="btn btn-accent" onclick="alert('Open Soil Analysis page (placeholder)')">Open Soil Analysis</button></div>
+            </div>
+          </article>
+
+          <!-- Crop Recommendation -->
+          <article class="service tilt">
+            <div class="img" style="background-image:url('crop.jpg')" aria-hidden></div>
+            <div class="body">
+              <h3>Crop Recommendation</h3>
+              <p>AI model suggests the top 4 crops best suited to your soil and location, along with expected risk and estimated profit.</p>
+              <div class="actions"><button class="btn btn-accent" onclick="alert('Open Crop Recommendation page (placeholder)')">Recommend Crops</button></div>
+            </div>
+          </article>
+
+          <!-- Fertilizer Predictor -->
+          <article class="service tilt">
+            <div class="img" style="background-image:url('fertilizer.webp')" aria-hidden></div>
+            <div class="body">
+              <h3>Fertilizer Predictor</h3>
+              <p>Select a crop and get an AI-recommended fertilizer combination, dosage by soil values, and cost estimate.</p>
+              <div class="actions"><button class="btn btn-accent" onclick="alert('Open Fertilizer Prediction page (placeholder)')">Predict Fertilizer</button></div>
+            </div>
+          </article>
+
+          <!-- Leaf Disease Detection -->
+          <article class="service tilt">
+            <div class="img" style="background-image:url('disease.webp')" aria-hidden></div>
+            <div class="body">
+              <h3>Leaf Disease Detection</h3>
+              <p>Upload a leaf image — the AI returns the disease name, causes, symptoms and an actionable treatment guide.</p>
+              <div class="actions"><button class="btn btn-accent" onclick="window.location.href='crop_disease_predictor-main/app.py'">Check Leaf</button></div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="features">
+        <h3 style="margin:0">Key Features</h3>
+        <div class="feature-list">
+          <div class="feature">
+            <strong>Language Support</strong>
+            <div style="font-weight:400;color:var(--muted);font-size:14px;margin-top:4px;">Switch between multiple languages for easy access by farmers and students.</div>
+          </div>
+          <div class="feature">
+            <strong>Responsive Design</strong>
+            <div style="font-weight:400;color:var(--muted);font-size:14px;margin-top:4px;">Works seamlessly on mobile, tablet, and desktop for field and office use.</div>
+          </div>
+          <div class="feature">
+            <strong>Crop Calendar</strong>
+            <div style="font-weight:400;color:var(--muted);font-size:14px;margin-top:4px;">Interactive calendar shows the best crops to plant in each month for your region.</div>
+          </div>
+          <div class="feature">
+            <strong>Data Privacy</strong>
+            <div style="font-weight:400;color:var(--muted);font-size:14px;margin-top:4px;">Your farm data and uploads are secure and never shared without consent.</div>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:10px">
+          <!-- Follow Us section removed -->
+        </div>
+      </section>
+
+      <footer>
+        <div>© My Smart Farm — Built For Farmers</div>
+        <div style="font-size:13px">Designed for soil-first decision making</div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // Theme toggle
+    const themeBtn = document.getElementById('themeBtn');
+    const body = document.body;
+    const themes = [
+      {name: 'light', icon: '🌙', label: 'Switch to dark theme'},
+      {name: 'dark', icon: '🌲', label: 'Switch to forest theme'},
+      {name: 'forest', icon: '☀️', label: 'Switch to light theme'}
+    ];
+    let stored = localStorage.getItem('msf-theme') || 'light';
+    let themeIdx = themes.findIndex(t => t.name === stored);
+    if(themeIdx === -1) themeIdx = 0;
+    function setTheme(idx) {
+      const t = themes[idx];
+      body.setAttribute('data-theme', t.name);
+      themeBtn.textContent = t.icon;
+      themeBtn.title = t.label;
+      localStorage.setItem('msf-theme', t.name);
+    }
+    setTheme(themeIdx);
+    themeBtn.addEventListener('click', ()=>{
+      themeIdx = (themeIdx + 1) % themes.length;
+      setTheme(themeIdx);
+    });
+
+    // Language selector with full i18n
+    const lang = document.getElementById('lang');
+    const translations = {
+      en: {
+        title: 'My Smart Farm',
+        subtitle: 'smart farming — soil to harvest',
+        welcome: 'Welcome to My Smart Farm',
+        intro: 'One-stop platform for soil analysis, crop recommendation, fertilizer planning and leaf-disease detection using AI — designed for farmers, students and agritech developers.',
+        calBtn: '📅 Open Calendar',
+        exploreBtn: 'Explore Services',
+        services: 'Our Services',
+        soil: 'Soil Analysis',
+        soilDesc: 'Provide N, P, K, pH and (optionally) temperature & moisture. Get a soil quality score, missing nutrients and a downloadable soil report.',
+        soilBtn: 'Open Soil Analysis',
+        crop: 'Crop Recommendation',
+        cropDesc: 'AI model suggests the top 4 crops best suited to your soil and location, along with expected risk and estimated profit.',
+        cropBtn: 'Recommend Crops',
+        fert: 'Fertilizer Predictor',
+        fertDesc: 'Select a crop and get an AI-recommended fertilizer combination, dosage by soil values, and cost estimate.',
+        fertBtn: 'Predict Fertilizer',
+        leaf: 'Leaf Disease Detection',
+        leafDesc: 'Upload a leaf image — the AI returns the disease name, causes, symptoms and an actionable treatment guide.',
+        leafBtn: 'Check Leaf',
+        features: 'Key Features',
+        langFeature: 'Language Support',
+        langFeatureDesc: 'Switch between multiple languages for easy access by farmers and students.',
+        respFeature: 'Responsive Design',
+        respFeatureDesc: 'Works seamlessly on mobile, tablet, and desktop for field and office use.',
+        calFeature: 'Crop Calendar',
+        calFeatureDesc: 'Interactive calendar shows the best crops to plant in each month for your region.',
+        privFeature: 'Data Privacy',
+        privFeatureDesc: 'Your farm data and uploads are secure and never shared without consent.',
+        footer1: '© My Smart Farm — Built For Farmers',
+        footer2: 'Designed for soil-first decision making',
+        search: 'Search features, crops...'
+      },
+      hi: {
+        title: 'माइ स्मार्ट फार्म',
+        subtitle: 'मिट्टी से फसल तक',
+        welcome: 'माइ स्मार्ट फार्म में आपका स्वागत है',
+        intro: 'मिट्टी विश्लेषण, फसल सिफारिश, उर्वरक योजना और पत्ते की बीमारी की पहचान के लिए एक ही स्थान — किसानों, छात्रों और एग्रीटेक डेवलपर्स के लिए।',
+        calBtn: '📅 कैलेंडर खोलें',
+        exploreBtn: 'सेवाएँ देखें',
+        services: 'हमारी सेवाएँ',
+        soil: 'मिट्टी विश्लेषण',
+        soilDesc: 'N, P, K, pH और (वैकल्पिक) तापमान व नमी प्रदान करें। मिट्टी की गुणवत्ता स्कोर, कमी पोषक तत्व और डाउनलोड करने योग्य रिपोर्ट प्राप्त करें।',
+        soilBtn: 'मिट्टी विश्लेषण खोलें',
+        crop: 'फसल सिफारिश',
+        cropDesc: 'एआई मॉडल आपकी मिट्टी और स्थान के अनुसार शीर्ष 4 उपयुक्त फसलें सुझाता है, जोखिम और अनुमानित लाभ सहित।',
+        cropBtn: 'फसलें सुझाएँ',
+        fert: 'उर्वरक पूर्वानुमान',
+        fertDesc: 'फसल चुनें और एआई अनुशंसित उर्वरक संयोजन, मात्रा और लागत प्राप्त करें।',
+        fertBtn: 'उर्वरक पूर्वानुमान',
+        leaf: 'पत्ते की बीमारी पहचान',
+        leafDesc: 'पत्ते की छवि अपलोड करें — एआई बीमारी का नाम, कारण, लक्षण और उपचार गाइड देता है।',
+        leafBtn: 'पत्ता जांचें',
+        features: 'मुख्य विशेषताएँ',
+        langFeature: 'भाषा समर्थन',
+        langFeatureDesc: 'किसानों और छात्रों के लिए आसान पहुँच हेतु कई भाषाओं में स्विच करें।',
+        respFeature: 'उत्तरदायी डिज़ाइन',
+        respFeatureDesc: 'मोबाइल, टैबलेट और डेस्कटॉप पर निर्बाध रूप से कार्य करता है।',
+        calFeature: 'फसल कैलेंडर',
+        calFeatureDesc: 'इंटरएक्टिव कैलेंडर आपके क्षेत्र के लिए प्रत्येक माह में सर्वोत्तम फसलें दिखाता है।',
+        privFeature: 'डेटा गोपनीयता',
+        privFeatureDesc: 'आपका डेटा और अपलोड सुरक्षित हैं और बिना अनुमति साझा नहीं किए जाते।',
+        footer1: '© माइ स्मार्ट फार्म — किसानों के लिए निर्मित',
+        footer2: 'मिट्टी-प्रथम निर्णय के लिए डिज़ाइन किया गया',
+        search: 'खोजें: विशेषताएँ, फसलें...'
+      },
+      te: {
+        title: 'మై స్మార్ట్ ఫార్మ్',
+        subtitle: 'మట్టితో పంట వరకు',
+        welcome: 'మై స్మార్ట్ ఫార్మ్‌కు స్వాగతం',
+        intro: 'మట్టి విశ్లేషణ, పంట సిఫార్సు, ఎరువుల ప్రణాళిక మరియు ఆకుపచ్చ వ్యాధి గుర్తింపు కోసం ఒకే వేదిక — రైతులు, విద్యార్థులు మరియు అగ్రిటెక్ అభివృద్ధికర్తల కోసం.',
+        calBtn: '📅 క్యాలెండర్ తెరవండి',
+        exploreBtn: 'సేవలను అన్వేషించండి',
+        services: 'మా సేవలు',
+        soil: 'మట్టి విశ్లేషణ',
+        soilDesc: 'N, P, K, pH మరియు (ఐచ్ఛికంగా) ఉష్ణోగ్రత & తేమను ఇవ్వండి. మట్టి నాణ్యత స్కోరు, లోపించిన పోషకాలు మరియు డౌన్‌లోడ్ చేయదగిన నివేదికను పొందండి.',
+        soilBtn: 'మట్టి విశ్లేషణ తెరవండి',
+        crop: 'పంట సిఫార్సు',
+        cropDesc: 'AI మోడల్ మీ మట్టి మరియు ప్రాంతానికి అనుగుణంగా టాప్ 4 పంటలను సూచిస్తుంది, ప్రమాదం మరియు అంచనా లాభంతో.',
+        cropBtn: 'పంటలను సూచించండి',
+        fert: 'ఎరువుల అంచనా',
+        fertDesc: 'పంటను ఎంచుకోండి మరియు AI సిఫార్సు చేసిన ఎరువుల కలయిక, మోతాదు మరియు ఖర్చు అంచనాను పొందండి.',
+        fertBtn: 'ఎరువుల అంచనా',
+        leaf: 'ఆకు వ్యాధి గుర్తింపు',
+        leafDesc: 'ఆకు చిత్రాన్ని అప్‌లోడ్ చేయండి — AI వ్యాధి పేరు, కారణాలు, లక్షణాలు మరియు చికిత్స మార్గదర్శిని ఇస్తుంది.',
+        leafBtn: 'ఆకును తనిఖీ చేయండి',
+        features: 'ప్రధాన లక్షణాలు',
+        langFeature: 'భాష మద్దతు',
+        langFeatureDesc: 'రైతులు మరియు విద్యార్థులకు సులభంగా ఉపయోగించడానికి అనేక భాషల మధ్య మారండి.',
+        respFeature: 'ప్రత్యుత్తర రూపకల్పన',
+        respFeatureDesc: 'మొబైల్, టాబ్లెట్ మరియు డెస్క్‌టాప్‌లపై నిరంతరం పనిచేస్తుంది.',
+        calFeature: 'పంట క్యాలెండర్',
+        calFeatureDesc: 'ఇంటరాక్టివ్ క్యాలెండర్ ప్రతి నెలలో మీ ప్రాంతానికి ఉత్తమమైన పంటలను చూపిస్తుంది.',
+        privFeature: 'డేటా గోప్యత',
+        privFeatureDesc: 'మీ ఫార్మ్ డేటా మరియు అప్‌లోడ్‌లు సురక్షితంగా ఉంటాయి మరియు అనుమతి లేకుండా పంచుకోబడవు.',
+        footer1: '© మై స్మార్ట్ ఫార్మ్ — రైతుల కోసం నిర్మించబడింది',
+        footer2: 'మట్టి-మొదటి నిర్ణయానికి రూపొందించబడింది',
+        search: 'వెతకండి: లక్షణాలు, పంటలు...'
+      }
+    };
+
+    function setLangUI(l) {
+      const t = translations[l] || translations.en;
+      document.querySelector('.title').textContent = t.title;
+      document.querySelector('.subtitle').textContent = t.subtitle;
+      document.querySelector('.intro h1').textContent = t.welcome;
+      document.querySelector('.intro p').textContent = t.intro;
+      document.getElementById('calBtn').textContent = t.calBtn;
+      document.querySelector('.btn-ghost').textContent = t.exploreBtn;
+      document.querySelector('#services h2').textContent = t.services;
+      // Services
+      const serviceEls = document.querySelectorAll('.service');
+      if(serviceEls.length === 4) {
+        serviceEls[0].querySelector('h3').textContent = t.soil;
+        serviceEls[0].querySelector('p').textContent = t.soilDesc;
+        serviceEls[0].querySelector('button').textContent = t.soilBtn;
+        serviceEls[1].querySelector('h3').textContent = t.crop;
+        serviceEls[1].querySelector('p').textContent = t.cropDesc;
+        serviceEls[1].querySelector('button').textContent = t.cropBtn;
+        serviceEls[2].querySelector('h3').textContent = t.fert;
+        serviceEls[2].querySelector('p').textContent = t.fertDesc;
+        serviceEls[2].querySelector('button').textContent = t.fertBtn;
+        serviceEls[3].querySelector('h3').textContent = t.leaf;
+        serviceEls[3].querySelector('p').textContent = t.leafDesc;
+        serviceEls[3].querySelector('button').textContent = t.leafBtn;
+      }
+      // Features
+      document.querySelector('.features h3').textContent = t.features;
+      const features = document.querySelectorAll('.feature');
+      if(features.length === 4) {
+        features[0].querySelector('strong').textContent = t.langFeature;
+        features[0].querySelector('div').textContent = t.langFeatureDesc;
+        features[1].querySelector('strong').textContent = t.respFeature;
+        features[1].querySelector('div').textContent = t.respFeatureDesc;
+        features[2].querySelector('strong').textContent = t.calFeature;
+        features[2].querySelector('div').textContent = t.calFeatureDesc;
+        features[3].querySelector('strong').textContent = t.privFeature;
+        features[3].querySelector('div').textContent = t.privFeatureDesc;
+      }
+      // Footer
+      document.querySelector('footer div').textContent = t.footer1;
+      document.querySelector('footer div+div').textContent = t.footer2;
+      // Search
+      const searchInput = document.getElementById('q');
+      searchInput.placeholder = t.search;
+      searchInput.setAttribute('aria-label', t.search);
+    }
+
+    lang.value = localStorage.getItem('msf-lang') || 'en';
+    setLangUI(lang.value);
+    lang.addEventListener('change', ()=>{
+      localStorage.setItem('msf-lang', lang.value);
+      setLangUI(lang.value);
+    });
+
+    // Calendar button
+    document.getElementById('calBtn').addEventListener('click', ()=>{
+      const d = prompt('Pick a date (YYYY-MM-DD) for a reminder or demo:','2025-12-11');
+      if(d) alert('Calendar chosen: '+d+' (demo)');
+    });
+
+    // Small tilt effect for service cards using pointer movement
+    document.querySelectorAll('.tilt').forEach(card=>{
+      card.addEventListener('pointermove', e=>{
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = `perspective(800px) rotateX(${(-y*6).toFixed(2)}deg) rotateY(${(x*8).toFixed(2)}deg)`;
+      });
+      card.addEventListener('pointerleave', ()=>{card.style.transform='none'});
+    });
+
+    // Simple search (client-side demo)
+    document.getElementById('q').addEventListener('keydown', e=>{
+      if(e.key === 'Enter'){
+        const v = e.target.value.toLowerCase();
+        alert('Searching for: '+v+' (demo)');
+      }
+    });
+  </script>
+</body>
+</html>

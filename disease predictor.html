@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Disease Predictor</title>
+  <style>
+    :root{
+      --bg: #f3fbf6;
+      --card: #ffffff;
+      --muted:#556b55;
+      --accent:#2e8b57;
+      --accent2: #b6e2c6;
+      --glass: rgba(255,255,255,0.7);
+      --radius:18px;
+      --shadow: 0 8px 32px rgba(30,50,30,0.10);
+      --shadow-hover: 0 16px 40px rgba(46,139,87,0.18);
+      --gradient: linear-gradient(120deg, #e0ffe6 0%, #b6e2c6 100%);
+      --gradient2: linear-gradient(90deg, #e0ffe6 0%, #f3fbf6 100%);
+      color-scheme: light;
+    }
+    [data-theme="dark"]{
+      --bg: #000000;
+      --card: #111111;
+      --muted: #b6e2c6;
+      --accent: #8fe0a2;
+      --accent2: #222;
+      --glass: rgba(20,20,20,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.32);
+      --shadow-hover: 0 16px 40px rgba(143,224,162,0.22);
+      --gradient: linear-gradient(120deg, #232323 0%, #000 100%);
+      --gradient2: linear-gradient(90deg, #232323 0%, #000 100%);
+      color-scheme: dark;
+    }
+    [data-theme="forest"]{
+      --bg: #1a2e22;
+      --card: #223c2b;
+      --muted: #d0f5e2;
+      --accent: #7ed957;
+      --accent2: #2e8b57;
+      --glass: rgba(34,60,43,0.7);
+      --shadow: 0 8px 32px rgba(46,139,87,0.22);
+      --shadow-hover: 0 16px 40px rgba(126,217,87,0.22);
+      --gradient: linear-gradient(120deg, #2e8b57 0%, #1a2e22 100%);
+      --gradient2: linear-gradient(90deg, #2e8b57 0%, #1a2e22 100%);
+      color-scheme: dark;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: var(--gradient2), radial-gradient(1200px 600px at 10% 10%, rgba(46,139,87,0.10), transparent), linear-gradient(180deg,#f7fff6 0%,var(--bg) 100%);
+      background-attachment: fixed;
+      color:#113322;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+      min-height:100vh;
+      transition:background .35s ease, color .35s ease;
+      letter-spacing: 0.01em;
+    }
+    .container{max-width:1200px;margin:0 auto;padding:0 12px;}
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+      padding:16px 28px;
+      background:var(--glass);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      border: 1.5px solid #e0ffe6;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0;}
+    .logo{
+      width:56px;height:56px;border-radius:16px;display:grid;place-items:center;
+      font-weight:700;font-size:20px;
+      background:linear-gradient(135deg,var(--accent), #2b6b4a);
+      color:white;
+      box-shadow:0 8px 24px rgba(46,139,87,0.22);
+      border: 2.5px solid #b6e2c6;
+      transition: box-shadow .3s;
+    }
+    .logo:hover { box-shadow: 0 16px 40px rgba(46,139,87,0.25); }
+    .title{font-size:22px;font-weight:800;letter-spacing:0.01em;}
+    .subtitle{font-size:13px;color:var(--muted);font-weight:500;letter-spacing:0.02em;}
+    .header-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-width:0;}
+    .lang-select, .search, .theme-toggle{
+      background:var(--glass);
+      border:1.5px solid #b6e2c6;
+      padding:8px;
+      border-radius:14px;
+      box-shadow:0 2px 8px rgba(46,139,87,0.04);
+      min-width:0;
+    }
+    .search{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding-inline:20px;
+      min-width:260px;
+      height:46px;
+      background: var(--card);
+      border-radius: 999px;
+      box-shadow: 0 2px 12px rgba(46,139,87,0.08);
+      border: 1.5px solid #b6e2c6;
+      transition: box-shadow .2s, border .2s;
+      position: relative;
+    }
+    .search:focus-within {
+      box-shadow: 0 4px 18px rgba(46,139,87,0.16);
+      border: 1.5px solid var(--accent);
+    }
+    .search svg {
+      width: 22px;
+      height: 22px;
+      color: var(--accent);
+      opacity: 0.85;
+      transition: color .2s;
+    }
+    .search:focus-within svg {
+      color: #2b6b4a;
+      opacity: 1;
+    }
+    input[type="search"]{
+      border:0;
+      background:transparent;
+      outline:none;
+      font-size:17px;
+      letter-spacing:0.01em;
+      flex:1;
+      padding: 8px 0;
+      color: #113322;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    input[type="search"]::placeholder {
+      color: var(--muted);
+      opacity: 0.7;
+      font-weight: 400;
+      font-size: 15px;
+    }
+    .theme-toggle button{border:0;background:transparent;padding:7px 10px;border-radius:10px;cursor:pointer;font-size:18px;transition:background .2s;}
+    .theme-toggle button:hover{background:var(--accent2);color:var(--accent);}
+  </style>
+</head>
+<body data-theme="light">
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden><img src="logo.png" alt="My Smart Farm Logo" style="width:48px;height:48px;display:block;border-radius:12px;object-fit:contain;box-shadow:0 6px 18px rgba(46,139,87,0.22)" /></div>
+        <div>
+          <div class="title">My Smart Farm</div>
+          <div class="subtitle">smart farming — soil to harvest</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="theme-toggle">
+          <button id="themeBtn" title="Toggle theme">🌙</button>
+        </div>
+      </div>
+    </header>
+    <main>
+      <h1 style="text-align:center;margin-top:48px;font-size:2.2rem;font-weight:800;letter-spacing:0.01em;">Disease Predictor</h1>
+      <!-- Page content goes here -->
+    </main>
+  </div>
+  <script>
+    // Theme toggle
+    const themeBtn = document.getElementById('themeBtn');
+    const body = document.body;
+    const themes = [
+      {name: 'light', icon: '🌙', label: 'Switch to dark theme'},
+      {name: 'dark', icon: '🌲', label: 'Switch to forest theme'},
+      {name: 'forest', icon: '☀️', label: 'Switch to light theme'}
+    ];
+    let stored = localStorage.getItem('msf-theme') || 'light';
+    let themeIdx = themes.findIndex(t => t.name === stored);
+    if(themeIdx === -1) themeIdx = 0;
+    function setTheme(idx) {
+      const t = themes[idx];
+      body.setAttribute('data-theme', t.name);
+      themeBtn.textContent = t.icon;
+      themeBtn.title = t.label;
+      localStorage.setItem('msf-theme', t.name);
+    }
+    setTheme(themeIdx);
+    themeBtn.addEventListener('click', ()=>{
+      themeIdx = (themeIdx + 1) % themes.length;
+      setTheme(themeIdx);
+    });
+  </script>
+</body>
+</html>
