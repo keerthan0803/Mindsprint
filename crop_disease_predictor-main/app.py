@@ -2,6 +2,7 @@ import os
 import json
 import pickle
 import numpy as np
+import requests
 from flask import Flask, render_template, request, jsonify, Response
 from werkzeug.utils import secure_filename
 from tensorflow import keras
@@ -61,7 +62,28 @@ FERTILIZER_RULES = {
     'Tomato': {'N': (100, 150), 'P': (60, 90), 'K': (120, 180), 'fertilizer': '20-20-20'},
 }
 
+# Weather API configuration
+WEATHER_API_KEY = "eb882d7968a1b9b01b83b6b9f78f7586"
+
+def get_weather(city):
+    """Get temperature and humidity from city name using OpenWeatherMap API"""
+    try:
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city},IN&appid={WEATHER_API_KEY}&units=metric"
+        response = requests.get(url, timeout=5)
+        data = response.json()
+        if response.status_code == 200:
+            temperature = data['main']['temp']
+            humidity = data['main']['humidity']
+            return temperature, humidity
+        else:
+            print(f'Weather API error: {data.get("message", "Unknown error")}')
+            return 25, 60  # Default values
+    except Exception as e:
+        print(f'Weather API error: {str(e)}')
+        return 25, 60  # Default values
+
 print('Using rule-based fertilizer recommendation system')
+print('Weather API integration enabled')
 
 # Helpers for fallbacks
 def _default_disease_info(class_names):
@@ -149,6 +171,27 @@ def crop_recommendation():
 @app.route('/fertilizer.html')
 def fertilizer_prediction():
     return render_template('fertilizer.html')
+
+@app.route('/api/weather', methods=['POST'])
+def get_weather_api():
+    """API endpoint to get weather data from city name"""
+    try:
+        data = request.get_json()
+        city = data.get('city', '').strip()
+        
+        if not city:
+            return jsonify({'error': 'City name is required'}), 400
+        
+        temperature, humidity = get_weather(city)
+        
+        return jsonify({
+            'success': True,
+            'city': city,
+            'temperature': temperature,
+            'humidity': humidity
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/price.html')
 def crop_prices():
@@ -252,6 +295,7 @@ def crop_predict():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/yeild.html')
+@app.route('/yeild')
 def yield_prediction():
     return render_template('yeild.html')
 
@@ -264,8 +308,21 @@ def fertilizer_predict():
         n = float(data.get('n', 0))
         p = float(data.get('p', 0))
         k = float(data.get('k', 0))
-        temperature = float(data.get('temperature', 25))
-        humidity = float(data.get('humidity', 60))
+        city = data.get('city', '').strip()
+        
+        # Get temperature and humidity - either from form or from weather API
+        temperature = data.get('temperature')
+        humidity = data.get('humidity')
+        
+        # If city is provided and temp/humidity are not, fetch from weather API
+        if city and (not temperature or not humidity):
+            api_temp, api_humidity = get_weather(city)
+            temperature = temperature if temperature else api_temp
+            humidity = humidity if humidity else api_humidity
+        else:
+            temperature = float(temperature) if temperature else 25
+            humidity = float(humidity) if humidity else 60
+        
         soiltype = data.get('soiltype', 'loamy').lower()
         crop = data.get('crop', 'rice').title()
         

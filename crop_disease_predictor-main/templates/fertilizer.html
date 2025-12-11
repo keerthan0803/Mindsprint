@@ -244,10 +244,13 @@
 
         <form id="fertForm" class="grid" onsubmit="return false;" aria-describedby="disclaimer">
 
-          <div>
+          <div style="grid-column: 1 / -1;">
             <label for="city">City / Region</label>
-            <input id="city" name="city" type="text" placeholder="Enter your city or region">
-            <div class="small muted"></div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <input id="city" name="city" type="text" placeholder="Enter your city or region" style="flex:1;">
+              <button type="button" id="fetchWeatherBtn" class="btn secondary" style="padding:10px 16px;white-space:nowrap;">🌤️ Get Weather</button>
+            </div>
+            <div class="small muted">Optionally enter city to auto-fetch temperature & humidity</div>
           </div>
 
           <div>
@@ -519,6 +522,44 @@
         extraTips.style.display = 'none';
       }
     }
+
+    // Fetch weather button handler
+    const fetchWeatherBtn = document.getElementById('fetchWeatherBtn');
+    fetchWeatherBtn.addEventListener('click', async () => {
+      const city = document.getElementById('city').value.trim();
+      
+      if (!city) {
+        alert('Please enter a city name');
+        return;
+      }
+      
+      fetchWeatherBtn.disabled = true;
+      fetchWeatherBtn.textContent = 'Fetching...';
+      
+      try {
+        const response = await fetch('/api/weather', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ city: city })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+          document.getElementById('temperature').value = result.temperature.toFixed(1);
+          document.getElementById('humidity').value = result.humidity.toFixed(1);
+          // Silently filled - no alert
+        } else {
+          alert('Error fetching weather: ' + (result.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Weather fetch error:', error);
+        alert('Failed to fetch weather data. Please enter manually.');
+      } finally {
+        fetchWeatherBtn.disabled = false;
+        fetchWeatherBtn.textContent = '🌤️ Get Weather';
+      }
+    });
 
     predictBtn.addEventListener('click', async ()=>{
       // Basic validation
