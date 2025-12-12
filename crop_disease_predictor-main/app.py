@@ -9,6 +9,10 @@ from tensorflow import keras
 from PIL import Image
 import io
 import base64
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -63,7 +67,7 @@ FERTILIZER_RULES = {
 }
 
 # Weather API configuration
-WEATHER_API_KEY = "eb882d7968a1b9b01b83b6b9f78f7586"
+WEATHER_API_KEY = os.getenv('WEATHER_API_KEY', 'eb882d7968a1b9b01b83b6b9f78f7586')
 
 def get_weather(city):
     """Get temperature and humidity from city name using OpenWeatherMap API"""
@@ -171,6 +175,18 @@ def crop_recommendation():
 @app.route('/fertilizer.html')
 def fertilizer_prediction():
     return render_template('fertilizer.html')
+
+@app.route('/price.html')
+def price_page():
+    """Serve the price page with API key from environment"""
+    data_gov_api_key = os.getenv('DATA_GOV_API_KEY', '579b464db66ec23bdd00000159ddd2c3a988470b5aa5c69f8e448614')
+    return render_template('price.html', data_gov_api_key=data_gov_api_key)
+
+@app.route('/api/get-api-key')
+def get_api_key():
+    """API endpoint to securely serve the government data API key"""
+    data_gov_api_key = os.getenv('DATA_GOV_API_KEY', '579b464db66ec23bdd00000159ddd2c3a988470b5aa5c69f8e448614')
+    return jsonify({'apiKey': data_gov_api_key})
 
 @app.route('/api/weather', methods=['POST'])
 def get_weather_api():
