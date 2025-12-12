@@ -48,7 +48,7 @@ Place model files in the root directory
 Set up OpenWeatherMap API key in app.py app.py:65-67
 Run the application: python app.py
 Usage
-Open the application in your browser at http://localhost:5000
+Open the application in your browser 
 Navigate to desired features from the main dashboard index.html:472-536
 For crop recommendations:
 Enter soil parameters (N, P, K values)
