@@ -11,10 +11,5 @@ ENV/
 # Environment variables
 .env
 
-# Model files (too large for GitHub)
-*.pkl
-*.h5
-*.model
-
 # Uploads
 uploads/
