@@ -1,1 +1,1 @@
-web: cd crop_disease_predictor-main && gunicorn app:app
+web: cd crop_disease_predictor-main && gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120 --max-requests 1000 --preload
