@@ -176,12 +176,6 @@ def crop_recommendation():
 def fertilizer_prediction():
     return render_template('fertilizer.html')
 
-@app.route('/price.html')
-def price_page():
-    """Serve the price page with API key from environment"""
-    data_gov_api_key = os.getenv('DATA_GOV_API_KEY', '579b464db66ec23bdd00000159ddd2c3a988470b5aa5c69f8e448614')
-    return render_template('price.html', data_gov_api_key=data_gov_api_key)
-
 @app.route('/api/get-api-key')
 def get_api_key():
     """API endpoint to securely serve the government data API key"""
@@ -456,4 +450,5 @@ def model_status():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
