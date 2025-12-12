@@ -214,7 +214,12 @@ def crop_prices():
 @app.route('/api/predict', methods=['POST'])
 def api_predict():
     if not MODEL_LOADED:
-        return jsonify({'error': 'Model not loaded. Please train the model first.'}), 500
+        return jsonify({
+            'error': 'Disease prediction model not loaded. Model files may be missing.',
+            'plant': 'Unknown',
+            'disease': 'Model not available',
+            'confidence': 0
+        }), 200
     
     if 'file' not in request.files:
         return jsonify({'error': 'No file provided'}), 400
@@ -244,7 +249,13 @@ def api_predict():
         return jsonify(result)
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        print(f"Error in disease prediction: {str(e)}")
+        return jsonify({
+            'error': f'Prediction failed: {str(e)}',
+            'plant': 'Unknown',
+            'disease': 'Error occurred',
+            'confidence': 0
+        }), 200
 
 @app.route('/api/crop-predict', methods=['POST'])
 def crop_predict():
