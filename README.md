@@ -70,7 +70,3 @@ Theme and language preferences are persisted in localStorage
 The system is designed for Indian agricultural contexts with regional language support
 Notes
 The README content is based on the actual implementation in the codebase, including the three-tier architecture, API endpoints, model loading with fallback mechanisms, and the multi-language responsive frontend design. The application is specifically designed for agricultural decision support with features like crop recommendation, disease detection, and fertilizer planning.
-
-Wiki pages you might want to explore:
-
-System Architecture (keerthan0803/Mindsprint)
